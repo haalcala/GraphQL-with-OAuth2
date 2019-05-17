@@ -15,7 +15,7 @@ Build a suite of graphql queries that compliment your business needs and enjoy a
 ## Steps to run this project:
 
 1. Run `yarn` command
-2. Setup database settings inside `.env` file
+2. Setup database settings inside `.env` file (for Heroku deployment, configure the same keys found in .env-SAMPLE in the Settings/Config Vars)
 3. Customise src/auth.ts according to your authentication needs
 4. Run `yarn start_dev` command (or `yarn start` in production)
 
@@ -65,3 +65,7 @@ Sample output:
 Sample output:
 
     {"data":{"createOAuthAccess":{"clientId":"my_admin","clientSecret":"c4d226c99081d984562c55a74bfc245b2ad21a70a441873b102e15b521c2a7da"}}}
+
+## GraphQL Notes
+
+Use `@UseMiddleware(AdminOnly)` annotation to restrict the query or mutation to the users `loginAdmin` or via OAuth
