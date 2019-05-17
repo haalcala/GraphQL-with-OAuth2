@@ -2,9 +2,13 @@
 
 This is a bare bone GraphQL with OAuth2.0 support or OAuth2.0 server with graphql capability, depending on how to want to utilise this base setup.
 
-Use case #1: You can just either use this project to serve as an ready-made OAuth2 server for your system. In this case, graphql is entirely optional. You can use the graphql to create the API Keys/secret for consistency (refer to the commands below)
+### Use case #1:
 
-Use case #2: Build a suite of graphql queries that compliment your business needs and enjoy a super admin access via Oauth2.
+You can just either use this project to serve as an ready-made OAuth2 server for your system. In this case, graphql is entirely optional. You can use the graphql to create the API Keys/secret for consistency (refer to the commands below)
+
+### Use case #2:
+
+Build a suite of graphql queries that compliment your business needs and enjoy a super admin access via Oauth2.
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
