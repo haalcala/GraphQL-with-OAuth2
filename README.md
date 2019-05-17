@@ -19,6 +19,8 @@ Use case #2: Build a suite of graphql queries that compliment your business need
 
 ### Login as admin
 
+You can use curl or the UI with your browser at http://localhost:4003/graphql
+
 Use the values for INITIAL_ADMIN_USERNAME and INITIAL_ADMIN_PASSWORD
 
     curl --cookies cookies.jar --cookie-jar cookies.jar -H 'Content-Type: application/json' -XPOST http://localhost:4003/graphql -d '{"operationName":null,"variables":{},"query":"mutation {  loginAdmin(username: \"my_admin\", password: \"my_admin\") { id email  }}"}'
