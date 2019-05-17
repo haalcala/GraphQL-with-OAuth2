@@ -17,9 +17,9 @@ Use case #2: Build a suite of graphql queries that compliment your business need
 
 ## Setup your OAuth2 access
 
-### Login as admin
-
 You can use curl or the UI with your browser at http://localhost:4003/graphql
+
+### Login as admin
 
 Use the values for INITIAL_ADMIN_USERNAME and INITIAL_ADMIN_PASSWORD
 
