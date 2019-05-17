@@ -1,4 +1,4 @@
-// OAuthClient.js
+// OAuthClient for testing
 
 var util = require("util");
 var request = require("request");
@@ -65,26 +65,15 @@ export default class OAuthClient {
 							data: params
 						},
 						headers: {
-							Authorization:
-								this.oauth_data.token_type +
-								" " +
-								this.oauth_data.access_token
+							Authorization: this.oauth_data.token_type + " " + this.oauth_data.access_token
 						}
 					};
 
-					debug(
-						">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
-						this.url + "/" + end_point
-					);
+					debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", this.url + "/" + end_point);
 					debug("post_data", JSON.stringify(post_data));
 
 					request.post(post_data, (err, result) => {
-						debug(
-							"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< err",
-							err,
-							"result",
-							JSON.stringify(result.body || result)
-						);
+						debug("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< err", err, "result", JSON.stringify(result.body || result));
 
 						if (err) {
 							return reject(err);
@@ -123,13 +112,7 @@ export default class OAuthClient {
 			console.log("request_option:", request_option);
 
 			request.post(request_option.url, request_option, (err, result) => {
-				if (debug.enabled)
-					debug(
-						"err",
-						err,
-						"result",
-						JSON.stringify(result.body || request)
-					);
+				if (debug.enabled) debug("err", err, "result", JSON.stringify(result.body || request));
 
 				if (err) {
 					return reject(err);
