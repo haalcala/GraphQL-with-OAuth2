@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Login</title>
+
+		<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+		<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+		<link rel="stylesheet" type="text/css" href="css.css" />
+	</head>
+	<body>
+		<script>
+			$(document).ready(function() {
+				function GetURLParameter(sParam) {
+					var sPageURL = window.location.search.substring(1);
+					var sURLVariables = sPageURL.split("&");
+					for (var i = 0; i < sURLVariables.length; i++) {
+						var sParameterName = sURLVariables[i].split("=");
+						if (sParameterName[0] == sParam) {
+							return sParameterName[1];
+						}
+					}
+				}
+
+				const redirect_uri = decodeURIComponent(GetURLParameter("redirect_uri"));
+
+				$("#redirect_uri").val(redirect_uri + (redirect_uri.indexOf("?") >= 0 ? "&" : "?") + "state=" + GetURLParameter("state"));
+
+				$("#grant_type").val(GetURLParameter("response_type"));
+				$("#client_id").val(GetURLParameter("client_id"));
+			});
+		</script>
+		<div style="display: flex; justify-content: center; justify-items: center">
+			<div style="display: flex; flex-direction: column; justify-content: center; justify-items: center">
+				<h1>OAuth2 Login</h1>
+				<div>
+					<form method="POST" action="/oauth/authorize">
+						<div class="field">
+							<input id="username" placeholder="username" name="username" type="text" />
+						</div>
+						<div class="field">
+							<input id="password" placeholder="password" name="password" type="password" />
+						</div>
+						<div class="field">
+							<input id="redirect_uri" name="redirect_uri" type="hidden" />
+							<input id="grant_type" name="grant_type" type="hidden" />
+							<input id="client_id" name="client_id" type="hidden" />
+							<button id="submit" name="submit" type="submit">
+								Login
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

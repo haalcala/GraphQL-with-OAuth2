@@ -1,0 +1,7 @@
+{
+	"name": "GraphQL-With-Oauth2",
+	"description": "GraphQL with OAuth2",
+	"repository": "https://github.com/haalcala/GraphQL-with-OAuth2.git",
+	"logo": "https://node-js-sample.herokuapp.com/node.png",
+	"keywords": ["node", "express", "static", "graphql", "apollo"]
+}
