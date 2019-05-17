@@ -13,7 +13,7 @@ Use case #2: Build a suite of graphql queries that compliment your business need
 1. Run `yarn` command
 2. Setup database settings inside `.env` file
 3. Customise src/auth.ts according to your authentication needs
-4. Run `yarn start_dev` command
+4. Run `yarn start_dev` command (or `yarn start` in production)
 
 ## Setup your OAuth2 access
 
