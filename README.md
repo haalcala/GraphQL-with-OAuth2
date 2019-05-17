@@ -10,10 +10,10 @@ Use case #2: Build a suite of graphql queries that compliment your business need
 
 ## Steps to run this project:
 
-1. Run `npm i` command
+1. Run `yarn` command
 2. Setup database settings inside `.env` file
 3. Customise src/auth.ts according to your authentication needs
-4. Run `npm start` command
+4. Run `yarn start_dev` command
 
 ## Setup your OAuth2 access
 
