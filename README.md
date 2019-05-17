@@ -6,6 +6,8 @@ Use case #1: You can just either use this project to serve as an ready-made OAut
 
 Use case #2: Build a suite of graphql queries that compliment your business needs and enjoy a super admin access via Oauth2.
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 ## Steps to run this project:
 
 1. Run `npm i` command
@@ -40,5 +42,3 @@ Sample output:
 Sample output:
 
     {"data":{"createOAuthAccess":{"clientId":"my_admin","clientSecret":"c4d226c99081d984562c55a74bfc245b2ad21a70a441873b102e15b521c2a7da"}}}
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
