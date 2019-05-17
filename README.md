@@ -25,7 +25,7 @@ You can use curl or the UI with your browser at http://localhost:4003/graphql
 
 ### Login as admin
 
-Use the values for INITIAL_ADMIN_USERNAME and INITIAL_ADMIN_PASSWORD
+Use the values for `INITIAL_ADMIN_USERNAME` and `INITIAL_ADMIN_PASSWORD`
 
     curl --cookie cookies.jar --cookie-jar cookies.jar -H 'Content-Type: application/json' \
      -XPOST http://localhost:4003/graphql \
