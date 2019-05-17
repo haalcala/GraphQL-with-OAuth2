@@ -53,7 +53,7 @@ export const configure = async express_app => {
 		// The user object in the arguments is the result of your authentication process
 		// (see step 9)
 
-		logDebug("---------------------- passport.serializeUser:: user:", user);
+		logDebug.enabled && logDebug("---------------------- passport.serializeUser:: user:", user);
 
 		done(null, user);
 
@@ -69,7 +69,7 @@ export const configure = async express_app => {
 		// If you stored the entire user object when you serialized it to session,
 		// you can skip re-quering your user store on every request
 
-		logDebug("---------------------- passport.deserializeUser:: user:", user);
+		logDebug.enabled && logDebug("---------------------- passport.deserializeUser:: user:", user);
 
 		// @ts-ignore
 		user = await Admin.findOne(user.userId);
@@ -84,7 +84,7 @@ export const configure = async express_app => {
 				passwordField: "user[password]"
 			},
 			async (email, password, done) => {
-				logDebug("LocalStrategy:: email:", email, "password:", password);
+				logDebug.enabled && logDebug("LocalStrategy:: email:", email, "password:", password);
 
 				const user = await User.findOne({ where: { email } });
 
@@ -104,14 +104,14 @@ export const configure = async express_app => {
 			logDebug.enabled && logDebug("BasicStrategy!!!!!! username:", username, "password:", password);
 
 			if (password === "password" && /[a-zA-z0-9]{40}/.test(username)) {
-				logDebug("It looks like an APIKEY");
+				logDebug.enabled && logDebug("It looks like an APIKEY");
 
 				const apikey = await ApiKey.findOne({
 					where: { apiKey: username }
 				});
 
 				if (apikey) {
-					logDebug("It is an API KEY!");
+					logDebug.enabled && logDebug("It is an API KEY!");
 
 					let client = await OauthClient.findOne({
 						where: { clientId: apikey.clientId }
@@ -190,7 +190,7 @@ export const configure = async express_app => {
 			if (Math.round((Date.now() - token.createdAt.getTime()) / 1000) > TokenExpiry) {
 				await token.remove();
 
-				if (logDebug.enabled) logDebug("Token Expired: " + accessToken);
+				if (logDebug.enabled) logDebug.enabled && logDebug("Token Expired: " + accessToken);
 
 				return done(null, false);
 			}
@@ -218,7 +218,7 @@ export const configure = async express_app => {
 
 	// oauth_server.grant(
 	// 	oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
-	// 		logDebug("------------------------ oauth2orize.grant.code:: ");
+	// 		logDebug.enabled && logDebug("------------------------ oauth2orize.grant.code:: ");
 
 	// 		var code = utils.uid(16);
 
@@ -268,7 +268,7 @@ export const configure = async express_app => {
 				var expired = Math.round((Date.now() - accesstoken.createdAt.getTime()) / 1000) > TokenExpiry;
 				if (!expired) {
 					tokenValue = accesstoken.token;
-					if (logDebug.enabled) logDebug("tokenValue using existing...");
+					if (logDebug.enabled) logDebug.enabled && logDebug("tokenValue using existing...");
 				}
 			} else {
 				accesstoken = new AccessToken();
@@ -287,7 +287,7 @@ export const configure = async express_app => {
 
 				if (!expired) {
 					refreshTokenValue = refreshtoken.token;
-					if (logDebug.enabled) logDebug("refreshTokenValue using existing...");
+					if (logDebug.enabled) logDebug.enabled && logDebug("refreshTokenValue using existing...");
 				} else {
 					await refreshtoken.remove();
 
@@ -338,12 +338,12 @@ export const configure = async express_app => {
 	// Exchange refreshToken for access token.
 	oauth_server.exchange(
 		oauth2orize.exchange.code(async (client: any, code: string, redirectURI: string, done) => {
-			logDebug("2222 oauth2orize.exchange.code(async (client, code, redirectURI, done) => {", client, code, redirectURI);
+			logDebug.enabled && logDebug("2222 oauth2orize.exchange.code(async (client, code, redirectURI, done) => {", client, code, redirectURI);
 
-			logDebug("Trying to confirm code:", code);
+			logDebug.enabled && logDebug("Trying to confirm code:", code);
 			const accessToken = await AccessToken.findOne({ where: { token: code } });
 
-			logDebug("accessToken:", accessToken);
+			logDebug.enabled && logDebug("accessToken:", accessToken);
 
 			try {
 				if (!accessToken || accessToken.grant_type !== "code" || client.clientId != accessToken.userId) {
@@ -351,7 +351,7 @@ export const configure = async express_app => {
 				}
 			} finally {
 				if (accessToken) {
-					logDebug("Removing accessToken:", accessToken);
+					logDebug.enabled && logDebug("Removing accessToken:", accessToken);
 					await accessToken.remove();
 				}
 			}
@@ -398,7 +398,7 @@ export const configure = async express_app => {
 
 			await accessToken.save();
 
-			logDebug("accessToken:", accessToken, "token:", token);
+			logDebug.enabled && logDebug("accessToken:", accessToken, "token:", token);
 
 			done(null, accessToken.token, token.token, {
 				expires_in: TokenExpiry
@@ -476,7 +476,7 @@ export const configure = async express_app => {
 
 		const redirect_to = redirect_uri + (redirect_uri.indexOf("?") > 0 ? "&" : "?") + grant_type + "=" + accessToken.token;
 
-		logDebug("redirect_to:", redirect_to);
+		logDebug.enabled && logDebug("redirect_to:", redirect_to);
 
 		res.redirect(redirect_to);
 	});
@@ -511,12 +511,12 @@ export const configure = async express_app => {
 	express_app.post("/graphql", middleware);
 
 	express_app.get("/oauth/account", passport.authenticate("bearer", { session: false }), ensureAdmin("/login"), async (req, resp, next) => {
-		logDebug("/oauth/account:: req:", req);
+		logDebug.enabled && logDebug("/oauth/account:: req:", req);
 
 		if (req.user) {
 			const user = await Admin.findOne(req.user.userId);
 
-			logDebug("user:", user);
+			logDebug.enabled && logDebug("user:", user);
 
 			if (!user) {
 				next();
