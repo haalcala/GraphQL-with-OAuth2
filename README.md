@@ -74,9 +74,9 @@ Use `@UseMiddleware(AdminOnly)` annotation to restrict the query or mutation to 
 
 Third-party consuming service should use the following endpoints
 
-Authorisation : <host uri>/authorize.html
+Authorisation : `<host uri>/authorize.html`
 
-Request Token : <host uri>/oauth/token
-Refresh Token : <host uri>/oauth/token
+Request Token : `<host uri>/oauth/token`
+Refresh Token : `<host uri>/oauth/token`
 
-Test/Validation : <host uri>/oauth/account
+Test/Validation : `<host uri>/oauth/account`
