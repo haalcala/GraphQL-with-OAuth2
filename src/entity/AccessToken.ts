@@ -11,6 +11,9 @@ export class AccessToken extends BaseEntity {
 	@Column("text")
 	token: string;
 
+	/**
+	 * Ex: code
+	 */
 	@Column("text")
 	grant_type: string;
 

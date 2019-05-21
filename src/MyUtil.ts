@@ -1,6 +1,5 @@
 import crypto from "crypto";
-import { User } from "./entity/User";
-import { Admin } from "./entity/Admin";
+import { OAuthUser } from "./entity/OAuthUser";
 import _ from "lodash";
 
 class MyUtil {
@@ -26,11 +25,7 @@ class MyUtil {
 		return shasum.digest("hex");
 	};
 
-	validPassword = async (user: User, password: string) => {
-		throw new Error("Method not implemented.");
-	};
-
-	async getNewToken<T>(_class: { new (): T }, admin: Admin): Promise<T> {
+	async getNewToken<T>(_class: { new (): T }, admin: OAuthUser): Promise<T> {
 		const t: T = new _class();
 
 		_.mergeWith(t, {
@@ -41,6 +36,26 @@ class MyUtil {
 		});
 
 		return t;
+	}
+
+	getLogger(module, level: "INFO" | "DEBUG" | "WARN" | "ERROR", enabled?: boolean) {
+		const logger = require("debug")(
+			module &&
+				module.filename &&
+				module.filename
+					.split("/")
+					.pop()
+					.split(".")[0] +
+					":" +
+					level
+		);
+
+		if (level === "DEBUG") {
+			logger.log = console.log.bind(console);
+			logger.enabled = enabled;
+		}
+
+		return logger;
 	}
 }
 

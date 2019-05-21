@@ -16,10 +16,6 @@ export class OauthClient extends BaseEntity {
 	@Column("text")
 	clientSecret: string;
 
-	@Field(() => [String], { nullable: true })
-	@Column("text")
-	scope: string[];
-
 	@Column()
 	salt: string;
 
@@ -30,4 +26,8 @@ export class OauthClient extends BaseEntity {
 	@Field()
 	@Column()
 	updatedAt: Date;
+
+	@Field(() => [String], { nullable: true })
+	@Column("text")
+	scope: string[]; // read-only, read-write, admin
 }

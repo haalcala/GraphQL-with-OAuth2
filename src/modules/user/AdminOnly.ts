@@ -1,25 +1,31 @@
 import { MiddlewareFn } from "type-graphql";
 import { MyContext } from "MyContext";
-import { Admin } from "../../../src/entity/Admin";
+import { OAuthUser } from "../../entity/OAuthUser";
 import _ from "lodash";
+import { my_util } from "../../../src/MyUtil";
+
+const logDebug = my_util.getLogger(module, "DEBUG", true);
+const logError = my_util.getLogger(module, "ERROR", true);
 
 export const AdminOnly: MiddlewareFn<MyContext> = async ({ context: { req } }, next) => {
-	console.log("req.session:", req.session);
+	logDebug.enabled && logDebug("req.session:", req.session);
 
-	console.log("req.user:", req.user);
+	logDebug.enabled && logDebug("req.user:", req.user);
 
 	// @ts-ignore
-	const adminId = _.at(req, "user.userId")[0] || req.session.adminId;
+	let adminId = req.session.adminId;
 
-	console.log("adminId", adminId);
+	if (req.user && req.user.scope && req.user.scope.indexOf("admin") >= 0) adminId = req.user.adminId;
+
+	logDebug.enabled && logDebug("adminId", adminId);
 
 	if (!adminId) {
 		throw new Error("Insufficient privileges");
 	}
 
-	const admin = await Admin.findOne(adminId);
+	const admin = await OAuthUser.findOne(adminId);
 
-	console.log("AdminOnly:: admin:", admin);
+	logDebug.enabled && logDebug("AdminOnly:: admin:", admin);
 
 	if (!admin) {
 		throw new Error("Insufficient privileges");

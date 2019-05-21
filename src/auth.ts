@@ -2,7 +2,6 @@ import passport from "passport";
 import { BasicStrategy } from "passport-http";
 import { Strategy as ClientPasswordStrategy } from "passport-oauth2-client-password";
 import { Strategy as BearerStrategy } from "passport-http-bearer";
-import { User } from "./entity/User";
 import { my_util } from "./MyUtil";
 import { OauthClient } from "./entity/OauthClient";
 import { AccessToken } from "./entity/AccessToken";
@@ -16,7 +15,7 @@ import { ApiKey } from "./entity/ApiKey";
 
 import oauth2orize from "oauth2orize";
 import crypto from "crypto";
-import { Admin } from "./entity/Admin";
+import { OAuthUser } from "./entity/OAuthUser";
 import { ensureAdmin } from "./modules/auth/ensureAdmin";
 
 const logDebug = require("debug")(
@@ -86,7 +85,7 @@ export const configure = async express_app => {
 			async (email, password, done) => {
 				logDebug.enabled && logDebug("LocalStrategy:: email:", email, "password:", password);
 
-				const user = await User.findOne({ where: { email } });
+				const user = await OAuthUser.findOne({ where: { email } });
 
 				if (!user || !user.password) {
 					return done(null, false, {
@@ -195,7 +194,7 @@ export const configure = async express_app => {
 				return done(null, false);
 			}
 
-			const user = await Admin.findOne(token.userId);
+			const user = await OAuthUser.findOne(token.userId);
 
 			if (!user) {
 				if (logError.enabled) logError("Unknown user: " + token.userId);
@@ -237,12 +236,12 @@ export const configure = async express_app => {
 		oauth2orize.exchange.password(async (client, username, password, scope, done) => {
 			logDebug.enabled && logDebug("11111 oauth2orize.exchange.password(async (client, username, password, scope, done) => {", client, username, password, scope);
 
-			const user = await Admin.findOne({
+			const user = await OAuthUser.findOne({
 				where: { adminId: username }
 			});
 
-			// console.log("user.password:", user.password);
-			// console.log(
+			// logDebug.enabled && logDebug("user.password:", user.password);
+			// logDebug.enabled && logDebug(
 			// 	"await my_util.getSha256(`${user.adminId}.${user.salt}.${password}`:",
 			// 	await my_util.getSha256(`${user.adminId}.${user.salt}.${password}`)
 			// );
@@ -356,7 +355,7 @@ export const configure = async express_app => {
 				}
 			}
 
-			const admin = await Admin.findOne(client.adminId);
+			const admin = await OAuthUser.findOne(client.adminId);
 
 			const new_accessToken = await my_util.getNewToken<AccessToken>(AccessToken, admin);
 			const refreshToken = await my_util.getNewToken<RefreshToken>(RefreshToken, admin);
@@ -383,7 +382,7 @@ export const configure = async express_app => {
 				await token.remove();
 			}
 
-			const user = await Admin.findOne({ where: { adminId: client.clientId } });
+			const user = await OAuthUser.findOne({ where: { adminId: client.clientId } });
 
 			if (!user) {
 				if (logError.enabled) logError("User Not Found!");
@@ -409,8 +408,8 @@ export const configure = async express_app => {
 	// token endpoint
 	const oauth2token = [
 		(req, res, next) => {
-			// console.log("req:", req);
-			// console.log("req.body:", req.body);
+			// logDebug.enabled && logDebug("req:", req);
+			// logDebug.enabled && logDebug("req.body:", req.body);
 			logDebug.enabled && logDebug("12084720874280194720472047210934872834782394071203471029487");
 
 			next();
@@ -451,7 +450,7 @@ export const configure = async express_app => {
 			return res.send(503, "Invalid 'client_id'");
 		}
 
-		const admin = await Admin.findOne({ where: { adminId: username } });
+		const admin = await OAuthUser.findOne({ where: { adminId: username } });
 
 		logDebug.enabled && logDebug("/oauth/authorize:: admin:", admin);
 
@@ -490,13 +489,13 @@ export const configure = async express_app => {
 	// );
 
 	var middleware = function(req, res, next) {
-		console.log("--------------------- middleware!!!");
-		console.log("--------------------- middleware!!!");
-		console.log("--------------------- middleware!!! req.headers", req.headers);
+		logDebug.enabled && logDebug("--------------------- middleware!!!");
+		logDebug.enabled && logDebug("--------------------- middleware!!!");
+		logDebug.enabled && logDebug("--------------------- middleware!!! req.headers", req.headers);
 
 		if (req.headers.authorization && req.headers.authorization.indexOf("Bearer ") === 0) {
 			passport.authenticate("bearer", function(err, user, info) {
-				console.log("middleware:: arguments", arguments);
+				logDebug.enabled && logDebug("middleware:: arguments", arguments);
 
 				req.user = user;
 
@@ -514,7 +513,7 @@ export const configure = async express_app => {
 		logDebug.enabled && logDebug("/oauth/account:: req:", req);
 
 		if (req.user) {
-			const user = await Admin.findOne(req.user.userId);
+			const user = await OAuthUser.findOne(req.user.userId);
 
 			logDebug.enabled && logDebug("user:", user);
 

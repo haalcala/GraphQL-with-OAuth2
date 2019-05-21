@@ -22,8 +22,9 @@ import _ = require("lodash");
 import { buildSchema } from "type-graphql";
 import cors = require("cors");
 import bodyParser from "body-parser";
-import { Admin } from "./entity/Admin";
 import shortid = require("shortid");
+import { oauth_helper } from "./modules/auth/OAuthHelper";
+import { OAuthUser } from "./entity/OAuthUser";
 
 logDebug.log = console.log.bind(console);
 logDebug.enable = true;
@@ -40,7 +41,7 @@ const startServer = async () => {
 	}
 
 	const schema = await buildSchema({
-		resolvers: [__dirname + "/**/*.ts"],
+		resolvers: [__dirname + "/entity/**/*.ts", __dirname + "/modules/graphql/resolvers/**/*.ts"],
 		authChecker: ({ root, args, context: { req }, info }, roles) => {
 			return !!req.session.userId;
 		}
@@ -78,35 +79,20 @@ const startServer = async () => {
 		}
 	});
 
-	if ((await Admin.count()) === 0) {
-		const admin = new Admin();
-		admin.adminId = process.env.INITIAL_ADMIN_USERNAME;
-		admin.email = "";
-		admin.salt = shortid.generate();
-		admin.password = await my_util.getSha256(`${admin.adminId}.${admin.salt}.${process.env.INITIAL_ADMIN_PASSWORD}`);
-		admin.createdAt = admin.updatedAt = new Date();
-		await admin.save();
-	}
-
-	if ((await ApiKey.count()) === 0) {
-		const apiKey = new ApiKey();
-
-		apiKey.apiKey = "0000000000111111111122222222223333333333";
-		apiKey.clientId = "default";
-
-		await apiKey.save();
-	}
-
-	if ((await OauthClient.count()) === 0) {
-		const oauthClient = new OauthClient();
-
-		oauthClient.clientId = "default";
-		oauthClient.scope = ["public"];
-
-		await oauthClient.save();
+	if ((await OAuthUser.count()) === 0) {
+		await oauth_helper.createAdminUser(process.env.INITIAL_ADMIN_USERNAME, process.env.INITIAL_ADMIN_PASSWORD);
 	}
 
 	const app = express();
+
+	app.use((req, res, next) => {
+		console.log("------------------------------------------------------------------------------------------");
+		console.log("------------------------------------------------------------------------------------------");
+		console.log("------------------------------------------------------------------------------------------");
+		// console.log("req", req);
+		console.log("req.session", req.session);
+		next();
+	});
 
 	app.use(require("morgan")("dev"));
 
@@ -115,15 +101,7 @@ const startServer = async () => {
 	app.use(express.static(path.join(__dirname, "../../public")));
 	// app.use(cors())
 
-	// app.use((req, res, next) => {
-	// 	console.log("------------------------------------------------------------------------------------------");
-	// 	console.log("------------------------------------------------------------------------------------------");
-	// 	console.log("------------------------------------------------------------------------------------------");
-	// 	console.log("req", req);
-	// 	next();
-	// });
-
-	// configure(app);
+	configure(app);
 
 	// uncomment the following to enable session via redis
 	// const RedisStore = connect_redis(session);

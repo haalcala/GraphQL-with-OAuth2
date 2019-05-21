@@ -1,9 +1,8 @@
 import { Request } from "express";
-import { User } from "../src/entity/User";
-import { Admin } from "../src/entity/Admin";
+import { OAuthUser } from "../src/entity/OAuthUser";
 
 export interface RequestSession extends Request {
-	admin?: Admin;
+	admin?: OAuthUser;
 	session?: any;
-	user?: User;
+	user?: OAuthUser;
 }

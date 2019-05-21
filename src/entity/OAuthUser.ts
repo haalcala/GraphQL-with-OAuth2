@@ -2,8 +2,8 @@ import { Entity, ObjectIdColumn, ObjectID, Column, BaseEntity } from "typeorm";
 import { ObjectType, Field, ID } from "type-graphql";
 
 @ObjectType()
-@Entity("Admins")
-export class Admin extends BaseEntity {
+@Entity("OAuthUsers")
+export class OAuthUser extends BaseEntity {
 	@Field(() => ID)
 	@ObjectIdColumn()
 	id: ObjectID;
@@ -29,4 +29,8 @@ export class Admin extends BaseEntity {
 
 	@Column("text", { nullable: true })
 	salt: string;
+
+	@Field(() => [String], { nullable: true })
+	@Column("text")
+	scope: string[]; // user, admin
 }
