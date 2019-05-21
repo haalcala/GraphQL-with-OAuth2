@@ -13,7 +13,7 @@ import session from "express-session";
 // uncomment the follow to enable session via redis
 // import connect_redis from "connect-redis";
 
-import { ApolloServer } from "apollo-server-express";
+import { ApolloServer, ApolloServerExpressConfig } from "apollo-server-express";
 import { my_util } from "./MyUtil";
 import { configure, _passport } from "./auth";
 import { ApiKey } from "./entity/ApiKey";
@@ -48,12 +48,16 @@ const startServer = async () => {
 
 	// console.log("schema:", schema);
 
-	const server = new ApolloServer({
-		// playground: !!process.env.ENABLE_GRAPHQL_PLAYGROUND,
-		// introspection: !!process.env.ENABLE_GRAPHQL_PLAYGROUND,
+	const apollo_server_opts = {
 		schema,
 		context: ({ req, res }) => ({ req, res })
-	});
+	} as ApolloServerExpressConfig;
+
+	if (process.env.ENABLE_GRAPHQL_PLAYGROUND) {
+		apollo_server_opts.playground = apollo_server_opts.introspection = !!process.env.ENABLE_GRAPHQL_PLAYGROUND;
+	}
+
+	const server = new ApolloServer(apollo_server_opts);
 
 	await createConnection({
 		type: "mongodb",
