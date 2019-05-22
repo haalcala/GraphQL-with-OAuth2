@@ -32,13 +32,13 @@ Use the values for `INITIAL_ADMIN_USERNAME` and `INITIAL_ADMIN_PASSWORD`
      -d "{\"operationName\":null, \
      \"variables\":{}, \
      \"query\":\"mutation { \
-         loginAdmin(username: \\\"my_admin\\\", password: \\\"my_admin\\\") \
+         login(username: \\\"my_admin\\\", password: \\\"my_admin\\\") \
          { id email  } \
      }\"}"
 
 Sample output:
 
-    {"data":{"loginAdmin":{"id":"5cdd1295cb7c214366c1b76c","email":""}}}
+    {"data":{"login":{"id":"5cdd1295cb7c214366c1b76c","email":""}}}
 
 ### A quick test
 
@@ -65,6 +65,28 @@ Sample output:
 Sample output:
 
     {"data":{"createOAuthAccess":{"clientId":"my_admin","clientSecret":"c4d226c99081d984562c55a74bfc245b2ad21a70a441873b102e15b521c2a7da"}}}
+
+### Create a (normal) user access (scope: [user]) (via OAuth)
+
+    curl --cookie cookies.jar --cookie-jar cookies.jar -H 'Content-Type: application/json' \
+     -XPOST http://localhost:4003/graphql \
+     -d "{\"operationName\":null,\"variables\":{}, \
+     \"query\":\"mutation {  \
+        createUserAccess(username:\"normal_user_name\", password:\"normal_user_password\") { userId } \
+    }\"}"
+
+Sample output:
+
+    {"data":{"createUserAccess":{"userId":"normal_user_name"}}}
+
+## Session Structure
+
+    req
+      +- user -- is a small version of OAuthUser object
+           +- userId -- is a OAuthUser.userId
+           +- scope -- is a OAuthUser.scope
+      +- session
+           +- userId -- is a OAuthUser.userId
 
 ## GraphQL Notes
 

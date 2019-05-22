@@ -9,11 +9,11 @@ export class OAuthUser extends BaseEntity {
 	id: ObjectID;
 
 	@Field()
-	@Column("text")
-	adminId: string;
+	@Column("text", { unique: true })
+	userId: string;
 
 	@Field()
-	@Column("text", { unique: true })
+	@Column("text")
 	email: string;
 
 	@Field()

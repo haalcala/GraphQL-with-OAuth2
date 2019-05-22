@@ -8,26 +8,28 @@ const logDebug = my_util.getLogger(module, "DEBUG", true);
 const logError = my_util.getLogger(module, "ERROR", true);
 
 export const AdminOnly: MiddlewareFn<MyContext> = async ({ context: { req } }, next) => {
-	logDebug.enabled && logDebug("req.session:", req.session);
+	logDebug.enabled && logDebug("AdminOnly:: req.session:", req.session);
 
-	logDebug.enabled && logDebug("req.user:", req.user);
+	logDebug.enabled && logDebug("AdminOnly:: req.user:", req.user);
 
 	// @ts-ignore
-	let adminId = req.session.userId;
+	let userId;
 
-	if (req.user && req.user.scope && req.user.scope.indexOf("admin") >= 0) adminId = req.user.adminId;
+	if (req.user && req.user.scope && req.user.scope.indexOf("admin") >= 0) {
+		userId = req.user.userId;
+	}
 
-	logDebug.enabled && logDebug("adminId", adminId);
+	logDebug.enabled && logDebug("AdminOnly:: userId", userId);
 
-	if (!adminId) {
+	if (!userId) {
 		throw new Error("Insufficient privileges");
 	}
 
-	const admin = await OAuthUser.findOne(adminId);
+	const user = await OAuthUser.findOne({ where: { userId } });
 
-	logDebug.enabled && logDebug("AdminOnly:: admin:", admin);
+	logDebug.enabled && logDebug("AdminOnly:: user:", user);
 
-	if (!admin) {
+	if (!user) {
 		throw new Error("Insufficient privileges");
 	}
 

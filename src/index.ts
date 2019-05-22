@@ -5,7 +5,6 @@ import "dotenv/config";
 import { createConnection } from "typeorm";
 
 import path from "path";
-import logDebug from "debug";
 import express from "express";
 
 import session from "express-session";
@@ -14,20 +13,16 @@ import session from "express-session";
 // import connect_redis from "connect-redis";
 
 import { ApolloServer, ApolloServerExpressConfig } from "apollo-server-express";
-import { my_util } from "./MyUtil";
 import { configure, _passport } from "./auth";
-import { ApiKey } from "./entity/ApiKey";
-import { OauthClient } from "./entity/OauthClient";
 import _ = require("lodash");
 import { buildSchema } from "type-graphql";
 import cors = require("cors");
 import bodyParser from "body-parser";
-import shortid = require("shortid");
 import { oauth_helper } from "./modules/auth/OAuthHelper";
 import { OAuthUser } from "./entity/OAuthUser";
+import { my_util } from "./MyUtil";
 
-logDebug.log = console.log.bind(console);
-logDebug.enable = true;
+const logDebug = my_util.getLogger(module, "DEBUG", true);
 
 const startServer = async () => {
 	if (!process.env.INITIAL_ADMIN_USERNAME) {
@@ -43,6 +38,7 @@ const startServer = async () => {
 	const schema = await buildSchema({
 		resolvers: [__dirname + "/entity/**/*.ts", __dirname + "/modules/graphql/resolvers/**/*.ts"],
 		authChecker: ({ root, args, context: { req }, info }, roles) => {
+			logDebug.enabled && logDebug("authChecker::");
 			return !!req.session.userId;
 		}
 	});
@@ -79,22 +75,23 @@ const startServer = async () => {
 		}
 	});
 
-	if ((await OAuthUser.count()) === 0) {
-		await oauth_helper.createAdminUser(process.env.INITIAL_ADMIN_USERNAME, process.env.INITIAL_ADMIN_PASSWORD);
-	}
+	await oauth_helper.init();
 
 	const app = express();
 
+	app.use(require("morgan")("dev"));
+
 	app.use((req, res, next) => {
-		console.log("------------------------------------------------------------------------------------------");
-		console.log("------------------------------------------------------------------------------------------");
-		console.log("------------------------------------------------------------------------------------------");
+		console.log("1111 ------------------------------------------------------------------------------------------");
+		console.log("1111 ------------------------------------------------------------------------------------------");
+		console.log("1111 ------------------------------------------------------------------------------------------");
 		// console.log("req", req);
-		console.log("req.session", req.session);
+		console.log("1111 req.headers", req.headers);
+		console.log("1111 req.body", req.body);
+		console.log("1111 req.session", req.session);
+		console.log("1111 req.user", req.user);
 		next();
 	});
-
-	app.use(require("morgan")("dev"));
 
 	app.use(bodyParser.urlencoded({ extended: false }));
 	app.use(bodyParser.json());
@@ -113,7 +110,7 @@ const startServer = async () => {
 			// store: new RedisStore({ client: redisClient }),
 			saveUninitialized: false,
 			resave: false,
-			name: "oaw",
+			name: process.env.COOKIE_NAME || "jssessionid",
 			secret: process.env.EXPRESS_SESSION_SECRET,
 			cookie: {
 				domain: process.env.WEBSITE_DOMAIN || undefined,
@@ -125,15 +122,36 @@ const startServer = async () => {
 		})
 	);
 
-	app.use(express.static(__dirname + "/public"));
+	app.use(async (req, res, next) => {
+		if (!req.user && req.session && req.session.userId) {
+			req.user = await oauth_helper.getOAuthUserByUserId(req.session.userId);
+		}
+
+		next();
+	});
+
+	app.use((req, res, next) => {
+		console.log("2222 ------------------------------------------------------------------------------------------");
+		console.log("2222 ------------------------------------------------------------------------------------------");
+		console.log("2222 ------------------------------------------------------------------------------------------");
+		// console.log("req", req);
+		console.log("2222 req.headers", req.headers);
+		console.log("2222 req.body", req.body);
+		console.log("2222 req.session", req.session);
+		console.log("2222 req.user", req.user);
+		next();
+	});
+
+	app.use(express.static(__dirname + "../../public"));
 
 	server.applyMiddleware({
-		app,
+		app, // app is from an existing express app
+
 		cors: {
 			origin: process.env.FRONTEND_BASE_URL || "http://localhost:3000",
 			credentials: true
 		}
-	}); // app is from an existing express app
+	});
 
 	const port = (process.env.PORT && parseInt(process.env.PORT)) || 4003;
 

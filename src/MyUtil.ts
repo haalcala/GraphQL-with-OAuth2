@@ -32,7 +32,7 @@ class MyUtil {
 			token: await my_util.getSha256("" + crypto.randomBytes(32)),
 			createdAt: new Date(),
 			updatedAt: new Date(),
-			userId: admin.id
+			userId: admin.userId
 		});
 
 		return t;
@@ -50,7 +50,7 @@ class MyUtil {
 					level
 		);
 
-		if (level === "DEBUG") {
+		if (level !== "ERROR") {
 			logger.log = console.log.bind(console);
 			logger.enabled = enabled;
 		}

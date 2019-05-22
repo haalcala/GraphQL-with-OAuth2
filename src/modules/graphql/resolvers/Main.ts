@@ -16,7 +16,8 @@ export class Main {
 	@Query(() => OAuthUser)
 	@Authorized()
 	async account(@Ctx() ctx): Promise<OAuthUser> {
-		const user = await OAuthUser.findOne(ctx.req.session.userId);
+		logDebug.enabled && logDebug("acount::");
+		const user = await OAuthUser.findOne({ where: { userId: ctx.req.session && ctx.req.session.userId } });
 
 		return user;
 	}
@@ -32,7 +33,7 @@ export class Main {
 
 				if (err) return reject(err);
 
-				ctx.res.clearCookie("oaw");
+				ctx.res.clearCookie(process.env.COOKIE_NAME || "jssessionid");
 
 				return resolve(true);
 			});
@@ -44,25 +45,33 @@ export class Main {
 	@Mutation(() => OauthClient)
 	@UseMiddleware(AdminOnly)
 	async createOAuthAccess(@Ctx() ctx: MyContext): Promise<OauthClient> {
-		const admin = await OAuthUser.findOne(ctx.req.session.userId);
+		const admin = await OAuthUser.findOne({ where: { userId: ctx.req.session.userId } });
 
 		if (!admin) {
 			throw new Error("Invalid session");
 		}
 
-		return await oauth_helper.createAuthClient({ clientId: admin.adminId });
+		return await oauth_helper.createAuthClient({ clientId: admin.userId });
 	}
 
 	@Mutation(() => OAuthUser)
-	async login(
-		@Arg("username") username: string,
-		@Arg("password") password: string,
-		@Ctx() ctx: MyContext
-	): Promise<OAuthUser> {
+	@UseMiddleware(AdminOnly)
+	async createUserAccess(@Ctx() ctx: MyContext, @Arg("username") username: string, @Arg("password") password: string): Promise<OAuthUser> {
+		const admin = await oauth_helper.createUser(username, password, ["user"]);
+
+		if (!admin) {
+			throw new Error("Invalid session");
+		}
+
+		return admin;
+	}
+
+	@Mutation(() => OAuthUser)
+	async login(@Arg("username") username: string, @Arg("password") password: string, @Ctx() ctx: MyContext): Promise<OAuthUser> {
 		try {
 			const oauthUser = await oauth_helper.authenticateUser({ username, password });
 
-			ctx.req.session.userId = oauthUser.id;
+			ctx.req.session.userId = oauthUser.userId;
 
 			return oauthUser;
 		} catch (e) {
@@ -70,5 +79,11 @@ export class Main {
 
 			throw new Error("Invalid user/password");
 		}
+	}
+
+	@Query(() => [OAuthUser])
+	@UseMiddleware(AdminOnly)
+	async getUsers(): Promise<OAuthUser[]> {
+		return OAuthUser.find();
 	}
 }

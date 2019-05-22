@@ -9,5 +9,5 @@ export class ApiKey extends BaseEntity {
 	apiKey: string;
 
 	@Column("text")
-	clientId: string;
+	userId: string;
 }

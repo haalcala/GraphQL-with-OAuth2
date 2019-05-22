@@ -18,23 +18,8 @@ import crypto from "crypto";
 import { OAuthUser } from "./entity/OAuthUser";
 import { ensureAdmin } from "./modules/auth/ensureAdmin";
 
-const logDebug = require("debug")(
-	module.filename
-		.split("/")
-		.pop()
-		.split(".")[0] + ":DEBUG"
-);
-const logError = require("debug")(
-	module.filename
-		.split("/")
-		.pop()
-		.split(".")[0] + ":ERROR"
-);
-
-logDebug.log = console.log.bind(console);
-
-logError.enabled = true;
-logDebug.enabled = true;
+const logDebug = my_util.getLogger(module, "DEBUG", true);
+const logError = my_util.getLogger(module, "ERROR", true);
 
 export const _passport = passport;
 
@@ -71,9 +56,9 @@ export const configure = async express_app => {
 		logDebug.enabled && logDebug("---------------------- passport.deserializeUser:: user:", user);
 
 		// @ts-ignore
-		user = await Admin.findOne(user.userId);
+		const _user = await Admin.findOne({ where: { userId: user.userId } });
 
-		done(null, user);
+		done(null, { userId: _user.userId, scope: _user.scope, harold_serialised_user: 2222 });
 	});
 
 	passport.use(
@@ -113,7 +98,7 @@ export const configure = async express_app => {
 					logDebug.enabled && logDebug("It is an API KEY!");
 
 					let client = await OauthClient.findOne({
-						where: { clientId: apikey.clientId }
+						where: { clientId: apikey.userId }
 					});
 
 					return done(null, {
@@ -177,12 +162,10 @@ export const configure = async express_app => {
 				where: { token: accessToken }
 			});
 
-			if (!token) {
-				if (logError.enabled) logError("Token Not Found: " + accessToken);
-				return done(null, false);
-			}
+			logDebug.enabled && logDebug("token:", token);
 
 			if (!token) {
+				if (logError.enabled) logError("Token Not Found: " + accessToken);
 				return done(null, false);
 			}
 
@@ -194,7 +177,7 @@ export const configure = async express_app => {
 				return done(null, false);
 			}
 
-			const user = await OAuthUser.findOne(token.userId);
+			const user = await OAuthUser.findOne({ where: { userId: token.userId } });
 
 			if (!user) {
 				if (logError.enabled) logError("Unknown user: " + token.userId);
@@ -202,7 +185,11 @@ export const configure = async express_app => {
 				return done(null, false);
 			}
 
-			done(null, { userId: user.id, harold_serialised_user: 1 });
+			const ret = { userId: user.userId, scope: user.scope, harold_serialised_user: 1 };
+
+			logDebug.enabled && logDebug("Returning user:", ret);
+
+			done(null, ret);
 		})
 	);
 
@@ -237,16 +224,16 @@ export const configure = async express_app => {
 			logDebug.enabled && logDebug("11111 oauth2orize.exchange.password(async (client, username, password, scope, done) => {", client, username, password, scope);
 
 			const user = await OAuthUser.findOne({
-				where: { adminId: username }
+				where: { userId: username }
 			});
 
 			// logDebug.enabled && logDebug("user.password:", user.password);
 			// logDebug.enabled && logDebug(
-			// 	"await my_util.getSha256(`${user.adminId}.${user.salt}.${password}`:",
-			// 	await my_util.getSha256(`${user.adminId}.${user.salt}.${password}`)
+			// 	"await my_util.getSha256(`${user.userId}.${user.salt}.${password}`:",
+			// 	await my_util.getSha256(`${user.userId}.${user.salt}.${password}`)
 			// );
 
-			if (!user || user.password != (await my_util.getSha256(`${user.adminId}.${user.salt}.${password}`))) {
+			if (!user || user.password != (await my_util.getSha256(`${user.userId}.${user.salt}.${password}`))) {
 				if (logError.enabled) logError("Invalid username/password: invalid_client");
 				const err = new Error("Invalid username/password " + "invalid_client");
 				return done(err);
@@ -258,7 +245,7 @@ export const configure = async express_app => {
 
 			let accesstoken = await AccessToken.findOne({
 				where: {
-					userId: user.adminId,
+					userId: user.userId,
 					clientId: client.clientId
 				}
 			});
@@ -276,7 +263,7 @@ export const configure = async express_app => {
 
 			let refreshtoken = await RefreshToken.findOne({
 				where: {
-					userId: user.adminId,
+					userId: user.userId,
 					clientId: client.clientId
 				}
 			});
@@ -313,7 +300,7 @@ export const configure = async express_app => {
 			_.mergeWith(refreshtoken, {
 				token: refreshTokenValue,
 				clientId: client.clientId,
-				userId: user.adminId,
+				userId: user.userId,
 				updatedAt: Date.now()
 			});
 
@@ -322,7 +309,7 @@ export const configure = async express_app => {
 			_.mergeWith(accesstoken, {
 				token: tokenValue,
 				clientId: client.clientId,
-				userId: user.adminId,
+				userId: user.userId,
 				updatedAt: Date.now()
 			});
 
@@ -337,35 +324,47 @@ export const configure = async express_app => {
 	// Exchange refreshToken for access token.
 	oauth_server.exchange(
 		oauth2orize.exchange.code(async (client: any, code: string, redirectURI: string, done) => {
-			logDebug.enabled && logDebug("2222 oauth2orize.exchange.code(async (client, code, redirectURI, done) => {", client, code, redirectURI);
-
-			logDebug.enabled && logDebug("Trying to confirm code:", code);
-			const accessToken = await AccessToken.findOne({ where: { token: code } });
-
-			logDebug.enabled && logDebug("accessToken:", accessToken);
-
 			try {
-				if (!accessToken || accessToken.grant_type !== "code" || client.clientId != accessToken.userId) {
-					return done(null, false);
+				logDebug.enabled && logDebug("2222 oauth2orize.exchange.code(async (client, code, redirectURI, done) => {", client, code, redirectURI);
+
+				logDebug.enabled && logDebug("Trying to confirm code:", code);
+				const accessToken = await AccessToken.findOne({ where: { token: code } });
+
+				logDebug.enabled && logDebug("accessToken:", accessToken);
+
+				try {
+					if (!accessToken || accessToken.grant_type !== "code") {
+						return done(null, false);
+					}
+				} finally {
+					if (accessToken) {
+						logDebug.enabled && logDebug("Removing accessToken:", accessToken);
+						await accessToken.remove();
+					}
 				}
-			} finally {
-				if (accessToken) {
-					logDebug.enabled && logDebug("Removing accessToken:", accessToken);
-					await accessToken.remove();
-				}
+
+				console.log("Generating new token");
+
+				const admin = await OAuthUser.findOne({ where: { userId: accessToken.userId } });
+
+				logDebug.enabled && logDebug("admin:", admin);
+
+				const new_accessToken = await my_util.getNewToken<AccessToken>(AccessToken, admin);
+				const refreshToken = await my_util.getNewToken<RefreshToken>(RefreshToken, admin);
+
+				logDebug.enabled && logDebug("new_accessToken:", new_accessToken);
+				logDebug.enabled && logDebug("refreshToken:", refreshToken);
+
+				await new_accessToken.save();
+				await refreshToken.save();
+
+				done(null, new_accessToken.token, refreshToken.token, {
+					expires_in: TokenExpiry
+				});
+			} catch (e) {
+				logError(e);
+				done(e);
 			}
-
-			const admin = await OAuthUser.findOne(client.adminId);
-
-			const new_accessToken = await my_util.getNewToken<AccessToken>(AccessToken, admin);
-			const refreshToken = await my_util.getNewToken<RefreshToken>(RefreshToken, admin);
-
-			await new_accessToken.save();
-			await refreshToken.save();
-
-			done(null, new_accessToken.token, refreshToken.token, {
-				expires_in: TokenExpiry
-			});
 		})
 	);
 
@@ -382,7 +381,7 @@ export const configure = async express_app => {
 				await token.remove();
 			}
 
-			const user = await OAuthUser.findOne({ where: { adminId: client.clientId } });
+			const user = await OAuthUser.findOne({ where: { userId: client.clientId } });
 
 			if (!user) {
 				if (logError.enabled) logError("User Not Found!");
@@ -428,7 +427,9 @@ export const configure = async express_app => {
 	express_app.post("/oauth/token", oauth2token);
 
 	express_app.post("/oauth/authorize", async (req, res) => {
-		logDebug.enabled && logDebug("/oauth/authorize:: req:", req);
+		// logDebug.enabled && logDebug("/oauth/authorize:: req:", req);
+		logDebug.enabled && logDebug("/oauth/authorize:: req.headers:", req.headers);
+		logDebug.enabled && logDebug("/oauth/authorize:: req.body:", req.body);
 
 		const { username, password, redirect_uri, grant_type, client_id } = req.body;
 
@@ -450,7 +451,7 @@ export const configure = async express_app => {
 			return res.send(503, "Invalid 'client_id'");
 		}
 
-		const admin = await OAuthUser.findOne({ where: { adminId: username } });
+		const admin = await OAuthUser.findOne({ where: { userId: username } });
 
 		logDebug.enabled && logDebug("/oauth/authorize:: admin:", admin);
 
@@ -458,7 +459,7 @@ export const configure = async express_app => {
 			return res.send(401, "Access denied");
 		}
 
-		if (!admin || admin.password != (await my_util.getSha256(`${admin.adminId}.${admin.salt}.${password}`))) {
+		if (!admin || admin.password != (await my_util.getSha256(`${admin.userId}.${admin.salt}.${password}`))) {
 			if (logError.enabled) logError("Invalid username/password: invalid_client");
 			const err = new Error("Invalid username/password " + "invalid_client");
 			return res.send(401, "Access denied");
@@ -468,7 +469,7 @@ export const configure = async express_app => {
 
 		accessToken.token = await my_util.getSha256("" + crypto.randomBytes(32));
 		accessToken.createdAt = accessToken.updatedAt = new Date();
-		accessToken.userId = admin.adminId;
+		accessToken.userId = admin.userId;
 		accessToken.grant_type = grant_type;
 
 		await accessToken.save();
@@ -510,10 +511,10 @@ export const configure = async express_app => {
 	express_app.post("/graphql", middleware);
 
 	express_app.get("/oauth/account", passport.authenticate("bearer", { session: false }), ensureAdmin("/login"), async (req, resp, next) => {
-		logDebug.enabled && logDebug("/oauth/account:: req:", req);
+		// logDebug.enabled && logDebug("/oauth/account:: req:", req);
 
 		if (req.user) {
-			const user = await OAuthUser.findOne(req.user.userId);
+			const user = await OAuthUser.findOne({ where: { userId: req.user.userId } });
 
 			logDebug.enabled && logDebug("user:", user);
 
@@ -521,7 +522,7 @@ export const configure = async express_app => {
 				next();
 			}
 
-			return resp.send(_.pick(user, ["adminId", "createdAt", "updatedAt", "email"]));
+			return resp.send(_.pick(user, ["userId", "createdAt", "updatedAt", "email"]));
 		}
 
 		next();

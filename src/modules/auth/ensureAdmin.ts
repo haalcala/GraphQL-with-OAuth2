@@ -11,11 +11,13 @@ export const ensureAdmin = options => {
 	var setReturnTo = options.setReturnTo === undefined ? true : options.setReturnTo;
 
 	return function(req, res, next) {
-		const user = _.at(req, "session.passport.user");
+		console.log("ensureAdmin:: req.user:", req.user);
 
-		console.log("ensureAdmin:: user:", user[0]);
+		const user = req.user || _.at(req, "session.passport.user")[0];
 
-		console.log("ensureAdmin:: req.isAuthenticated", req.isAuthenticated);
+		console.log("ensureAdmin:: user:", user);
+
+		console.log("ensureAdmin:: req.isAuthenticated", req.isAuthenticated());
 
 		if (!req.isAuthenticated || !req.isAuthenticated()) {
 			if (setReturnTo && req.session) {
@@ -23,6 +25,9 @@ export const ensureAdmin = options => {
 			}
 			return res.redirect(url);
 		}
+
+		console.log("ensureAdmin:: next");
+
 		next();
 	};
 };
