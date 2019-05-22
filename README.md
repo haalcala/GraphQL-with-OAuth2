@@ -2,6 +2,10 @@
 
 This is a bare bone GraphQL with OAuth2.0 support or OAuth2.0 server with graphql capability, depending on how to want to utilise this base setup.
 
+## So what does this exactly do?
+
+You can login via /graphql (mutation: login) or via OAuth 2.0 and doing so will get the OAuthUser instance injected to the request object for further access to the rest of the mutation/query
+
 ### Use case #1:
 
 You can just either use this project to serve as an ready-made OAuth2 server for your system. In this case, graphql is entirely optional. You can use the graphql to create the API Keys/secret for consistency (refer to the commands below)
