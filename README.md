@@ -50,7 +50,7 @@ Sample output:
      -XPOST http://localhost:4003/graphql \
      -d "{\"operationName\":null,\"variables\":{}, \
      \"query\":\"{  \
-        getUsers { id email  } \
+        getUsers { userId  } \
     }\"}"
 
 Sample output:
@@ -76,7 +76,7 @@ Sample output:
      -XPOST http://localhost:4003/graphql \
      -d "{\"operationName\":null,\"variables\":{}, \
      \"query\":\"mutation {  \
-        createUserAccess(username:\"normal_user_name\", password:\"normal_user_password\") { userId } \
+        createUserAccess(username:\\\"normal_user_name\\\", password:\\\"normal_user_password\\\") { userId } \
     }\"}"
 
 Sample output:
