@@ -13,7 +13,7 @@ export const AdminOnly: MiddlewareFn<MyContext> = async ({ context: { req } }, n
 	logDebug.enabled && logDebug("req.user:", req.user);
 
 	// @ts-ignore
-	let adminId = req.session.adminId;
+	let adminId = req.session.userId;
 
 	if (req.user && req.user.scope && req.user.scope.indexOf("admin") >= 0) adminId = req.user.adminId;
 
