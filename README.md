@@ -42,7 +42,7 @@ Use the values for `INITIAL_ADMIN_USERNAME` and `INITIAL_ADMIN_PASSWORD`
 
 Sample output:
 
-    {"data":{"login":{"id":"5cdd1295cb7c214366c1b76c","email":""}}}
+    ```{"data":{"login":{"id":"5cdd1295cb7c214366c1b76c","email":""}}}```
 
 ### A quick test
 
@@ -55,7 +55,7 @@ Sample output:
 
 Sample output:
 
-    {"data":{"getUsers":[]}}
+    ```{"data":{"getUsers":[]}}```
 
 ### Create a client_id and secret key for your app!
 
@@ -68,7 +68,7 @@ Sample output:
 
 Sample output:
 
-    {"data":{"createOAuthAccess":{"clientId":"my_admin","clientSecret":"c4d226c99081d984562c55a74bfc245b2ad21a70a441873b102e15b521c2a7da"}}}
+    ```{"data":{"createOAuthAccess":{"clientId":"my_admin","clientSecret":"c4d226c99081d984562c55a74bfc245b2ad21a70a441873b102e15b521c2a7da"}}}```
 
 ### Create a (normal) user access (scope: [user]) (via OAuth)
 
@@ -81,7 +81,7 @@ Sample output:
 
 Sample output:
 
-    {"data":{"createUserAccess":{"userId":"normal_user_name"}}}
+    ```{"data":{"createUserAccess":{"userId":"normal_user_name"}}}```
 
 ## Session Structure
 
