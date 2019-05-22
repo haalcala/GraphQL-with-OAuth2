@@ -111,6 +111,7 @@ Third-party consuming service should use the following endpoints
 Authorisation : `<host uri>/authorize.html`
 
 Request Token : `<host uri>/oauth/token`
+
 Refresh Token : `<host uri>/oauth/token`
 
 Test/Validation : `<host uri>/oauth/account`
