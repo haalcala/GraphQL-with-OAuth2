@@ -22,9 +22,10 @@ import { oauth_helper } from "./modules/auth/OAuthHelper";
 import { OAuthUser } from "./entity/OAuthUser";
 import { my_util } from "./MyUtil";
 
-const logDebug = my_util.getLogger(module, "DEBUG", true);
+const { logDebug, logWarn, logInfo } = my_util.getLoggers(module, 4);
 
 const startServer = async () => {
+	logInfo("Starting server ...");
 	if (!process.env.INITIAL_ADMIN_USERNAME) {
 		throw new Error("Missing required configuration INITIAL_ADMIN_USERNAME");
 	}
@@ -43,7 +44,7 @@ const startServer = async () => {
 		}
 	});
 
-	// console.log("schema:", schema);
+	// logDebug.enabled&& logDebug("schema:", schema);
 
 	const apollo_server_opts = {
 		schema,
@@ -82,21 +83,37 @@ const startServer = async () => {
 	app.use(require("morgan")("dev"));
 
 	app.use((req, res, next) => {
-		console.log("1111 ------------------------------------------------------------------------------------------");
-		console.log("1111 ------------------------------------------------------------------------------------------");
-		console.log("1111 ------------------------------------------------------------------------------------------");
-		// console.log("req", req);
-		console.log("1111 req.headers", req.headers);
-		console.log("1111 req.body", req.body);
-		console.log("1111 req.session", req.session);
-		console.log("1111 req.user", req.user);
+		logDebug.enabled && logDebug("1111 ------------------------------------------------------------------------------------------");
+		logDebug.enabled && logDebug("1111 ------------------------------------------------------------------------------------------");
+		logDebug.enabled && logDebug("1111 ------------------------------------------------------------------------------------------");
+		// logDebug.enabled&& logDebug("req", req);
+		logDebug.enabled && logDebug("1111 req.headers", req.headers);
+		logDebug.enabled && logDebug("1111 req.body", req.body);
+		logDebug.enabled && logDebug("1111 req.session", req.session);
+		logDebug.enabled && logDebug("1111 req.user", req.user);
 		next();
 	});
 
 	app.use(bodyParser.urlencoded({ extended: false }));
 	app.use(bodyParser.json());
 	app.use(express.static(path.join(__dirname, "../../public")));
-	// app.use(cors())
+
+	const whitelist = ["http://localhost:4003", "http://localhost:4002"];
+
+	app.use(
+		cors({
+			// origin: (origin, cb) => {
+			// 	logDebug.enabled && logDebug("--------------------------------------------- CORS check!");
+			// 	if (whitelist.indexOf(origin) !== -1) {
+			// 		cb(null, true);
+			// 	} else {
+			// 		logWarn("Not allowed by CORS origin: " + origin);
+			// 		cb(new Error("Not allowed by CORS origin: " + origin));
+			// 	}
+			// },
+			credentials: true
+		})
+	);
 
 	configure(app);
 
@@ -131,33 +148,28 @@ const startServer = async () => {
 	});
 
 	app.use((req, res, next) => {
-		console.log("2222 ------------------------------------------------------------------------------------------");
-		console.log("2222 ------------------------------------------------------------------------------------------");
-		console.log("2222 ------------------------------------------------------------------------------------------");
-		// console.log("req", req);
-		console.log("2222 req.headers", req.headers);
-		console.log("2222 req.body", req.body);
-		console.log("2222 req.session", req.session);
-		console.log("2222 req.user", req.user);
+		logDebug.enabled && logDebug("2222 ------------------------------------------------------------------------------------------");
+		logDebug.enabled && logDebug("2222 ------------------------------------------------------------------------------------------");
+		logDebug.enabled && logDebug("2222 ------------------------------------------------------------------------------------------");
+		// logDebug.enabled&& logDebug("req", req);
+		logDebug.enabled && logDebug("2222 req.headers", req.headers);
+		logDebug.enabled && logDebug("2222 req.body", req.body);
+		logDebug.enabled && logDebug("2222 req.session", req.session);
+		logDebug.enabled && logDebug("2222 req.user", req.user);
 		next();
 	});
 
 	app.use(express.static(__dirname + "../../public"));
 
 	server.applyMiddleware({
-		app, // app is from an existing express app
-
-		cors: {
-			origin: process.env.FRONTEND_BASE_URL || "http://localhost:3000",
-			credentials: true
-		}
+		app
 	});
 
 	const port = (process.env.PORT && parseInt(process.env.PORT)) || 4003;
 
-	app.listen({ port }, () => console.log(`🚀 Server ready at http://localhost:${port}${server.graphqlPath}`));
+	app.listen({ port }, () => logDebug.enabled && logDebug(`🚀 Server ready at http://localhost:${port}${server.graphqlPath}`));
 };
 
 startServer().catch(err => {
-	console.log("index.ts:: err:", err);
+	logDebug.enabled && logDebug("index.ts:: err:", err);
 });

@@ -3,8 +3,7 @@ import shortid = require("shortid");
 import { my_util } from "../../../src/MyUtil";
 import { OauthClient } from "../../entity/OauthClient";
 
-const logDebug = my_util.getLogger(module, "DEBUG", true);
-const logInfo = my_util.getLogger(module, "INFO", true);
+const { logDebug, logInfo } = my_util.getLoggers(module, 4);
 
 class OAuthHelper {
 	constructor(options) {}
@@ -38,7 +37,7 @@ class OAuthHelper {
 	}
 
 	async createUser(username: string, password: string, scope: string[] = ["user"]): Promise<OAuthUser> {
-		logDebug.enabled && logDebug("createUser::");
+		logDebug.enabled && logDebug.enabled && logDebug("createUser::");
 
 		const admin = new OAuthUser();
 
@@ -67,11 +66,11 @@ class OAuthHelper {
 	}
 
 	async authenticateUser({ username, password }): Promise<OAuthUser> {
-		logDebug("username", username, "password:", password);
+		logDebug.enabled && logDebug("username", username, "password:", password);
 
 		const oauthUser = await OAuthUser.findOne({ where: { userId: username } });
 
-		logDebug("oauthUser", oauthUser);
+		logDebug.enabled && logDebug("oauthUser", oauthUser);
 
 		if (!oauthUser) {
 			throw new Error("Invalid user");

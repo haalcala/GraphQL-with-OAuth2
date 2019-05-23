@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { OAuthUser } from "./entity/OAuthUser";
 import _ from "lodash";
+import debug from "debug";
 
 class MyUtil {
 	getSha256(string: string, key?: string): string {
@@ -38,17 +39,8 @@ class MyUtil {
 		return t;
 	}
 
-	getLogger(module, level: "INFO" | "DEBUG" | "WARN" | "ERROR", enabled?: boolean) {
-		const logger = require("debug")(
-			module &&
-				module.filename &&
-				module.filename
-					.split("/")
-					.pop()
-					.split(".")[0] +
-					":" +
-					level
-		);
+	getLogger(module, level: "INFO" | "DEBUG" | "WARN" | "ERROR", enabled?: boolean): debug {
+		const logger = require("debug")(module && module.filename && module.filename.split("/").pop() + ":" + level);
 
 		if (level !== "ERROR") {
 			logger.log = console.log.bind(console);
@@ -56,6 +48,19 @@ class MyUtil {
 		}
 
 		return logger;
+	}
+
+	getLoggers(module, level: number): { logDebug?: debug; logWarn?: debug; logError?: debug; logInfo?: debug } {
+		const levels = ["ERROR", "WARN", "INFO", "DEBUG"];
+
+		const ret = {} as { logDebug?: debug; logWarn?: debug; logError?: debug; logInfo?: debug };
+
+		levels.slice(0, level + 1).map(level => {
+			// @ts-ignore
+			ret["log" + _.upperFirst(level.toLowerCase())] = this.getLogger(module, level, level !== "DEBUG");
+		});
+
+		return ret;
 	}
 }
 
