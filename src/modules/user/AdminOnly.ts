@@ -4,8 +4,7 @@ import { OAuthUser } from "../../entity/OAuthUser";
 import _ from "lodash";
 import { my_util } from "../../../src/MyUtil";
 
-const logDebug = my_util.getLogger(module, "DEBUG", true);
-const logError = my_util.getLogger(module, "ERROR", true);
+const { logDebug, logError } = my_util.getLoggers(module, 4);
 
 export const AdminOnly: MiddlewareFn<MyContext> = async ({ context: { req } }, next) => {
 	logDebug.enabled && logDebug("AdminOnly:: req.session:", req.session);
