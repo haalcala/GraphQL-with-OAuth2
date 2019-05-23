@@ -321,7 +321,7 @@ export const configure = async express_app => {
 		})
 	);
 
-	// Exchange refreshToken for access token.
+	// Exchange code for access token.
 	oauth_server.exchange(
 		oauth2orize.exchange.code(async (client: any, code: string, redirectURI: string, done) => {
 			try {
