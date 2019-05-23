@@ -2,8 +2,21 @@ import { OAuthUser } from "../../entity/OAuthUser";
 import shortid = require("shortid");
 import { my_util } from "../../../src/MyUtil";
 import { OauthClient } from "../../entity/OauthClient";
+import { AccessToken } from "../../entity/AccessToken";
+import { RefreshToken } from "../../entity/RefreshToken";
 
 const { logDebug, logInfo } = my_util.getLoggers(module, 4);
+
+export interface IAUTH_PROVIDER {
+	createCode(client: OauthClient, user: OAuthUser): Promise<AccessToken>;
+	getClient(client_id: string): Promise<OauthClient>;
+	getRefreshToken(token: string, remove_if_found: boolean): Promise<RefreshToken>;
+	getNewTokens(client: OauthClient, user: OAuthUser): PromiseLike<{ accessToken: AccessToken; refreshToken: RefreshToken }>;
+	verifyUser(username: string, password: string): Promise<OAuthUser>;
+	verifyAccessToken(accessToken: string, type?: "code"): Promise<OAuthUser>;
+	getUser(userId: string): Promise<OAuthUser>;
+	verifyClient?(clientId: string, clientSecret: string): Promise<OauthClient>;
+}
 
 class OAuthHelper {
 	constructor(options) {}

@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { OAuthUser } from "./entity/OAuthUser";
 import _ from "lodash";
 import debug from "debug";
+import { OauthClient } from "./entity/OauthClient";
 
 class MyUtil {
 	getSha256(string: string, key?: string): string {
@@ -26,14 +27,15 @@ class MyUtil {
 		return shasum.digest("hex");
 	};
 
-	async getNewToken<T>(_class: { new (): T }, admin: OAuthUser): Promise<T> {
+	async getNewToken<T>(_class: { new (): T }, client: OauthClient, admin: OAuthUser): Promise<T> {
 		const t: T = new _class();
 
 		_.mergeWith(t, {
 			token: await my_util.getSha256("" + crypto.randomBytes(32)),
 			createdAt: new Date(),
 			updatedAt: new Date(),
-			userId: admin.userId
+			userId: admin.userId,
+			clientId: client.clientId
 		});
 
 		return t;
