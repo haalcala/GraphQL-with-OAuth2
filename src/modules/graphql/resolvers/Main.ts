@@ -5,11 +5,12 @@ import { MyContext } from "MyContext";
 import { OauthClient } from "../../../entity/OauthClient";
 import { OAuthUser } from "../../../entity/OAuthUser";
 import { AdminOnly } from "../../user/AdminOnly";
-import { oauth_helper } from "../../../../src/modules/auth/OAuthHelper";
-import { my_util } from "../../../../src/MyUtil";
+import { oauth_helper } from "../../../modules/auth/OAuthHelper";
+import { my_util } from "../../../MyUtil";
 
-const logDebug = my_util.getLogger(module, "DEBUG", true);
-const logError = my_util.getLogger(module, "ERROR", true);
+const { logDebug, logError } = my_util.getLoggers(module, 4);
+
+logDebug.enabled = true;
 
 @Resolver()
 export class Main {

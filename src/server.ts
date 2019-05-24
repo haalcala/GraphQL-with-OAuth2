@@ -25,6 +25,8 @@ import { DefaultAuthHandler } from "./modules/auth/DefaultAuthHandler";
 
 const { logDebug, logWarn, logInfo } = my_util.getLoggers(module, 4);
 
+logDebug.enabled = true;
+
 /**
  *
  * @param auth_provider Optional. Default is ./modules/auth/DefaultAuthHandler
@@ -32,9 +34,11 @@ const { logDebug, logWarn, logInfo } = my_util.getLoggers(module, 4);
 export const startServer = async (auth_provider?: IAUTH_PROVIDER) => {
 	if (!auth_provider) {
 		auth_provider = new DefaultAuthHandler();
-
-		oauth_helper.auth_handler = auth_provider;
 	}
+
+	oauth_helper.auth_handler = auth_provider;
+
+	logDebug("oauth_helper.auth_handler:", oauth_helper.auth_handler);
 
 	logInfo("Starting server ...");
 	if (!process.env.INITIAL_ADMIN_USERNAME) {

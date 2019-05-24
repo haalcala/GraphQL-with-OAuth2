@@ -7,6 +7,8 @@ import { RefreshToken } from "../../entity/RefreshToken";
 
 const { logDebug, logInfo } = my_util.getLoggers(module, 4);
 
+logDebug.enabled = true;
+
 export interface IAUTH_PROVIDER {
 	createCode(client: OauthClient, user: OAuthUser, sessionId?: string): Promise<AccessToken>;
 	getClient(client_id: string): Promise<OauthClient>;
