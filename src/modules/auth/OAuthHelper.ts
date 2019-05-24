@@ -36,11 +36,6 @@ class OAuthHelper {
 			logInfo("Creating first OAuthUser");
 			await oauth_helper.createAdminUser(process.env.INITIAL_ADMIN_USERNAME, process.env.INITIAL_ADMIN_PASSWORD);
 		}
-
-		if ((await OauthClient.count()) === 0) {
-			logInfo("Creating first OAuthClient ...");
-			await this.createAuthClient({ clientId: process.env.INITIAL_ADMIN_USERNAME });
-		}
 	}
 
 	async getOAuthUserByUserId(userId: string) {
@@ -74,10 +69,11 @@ class OAuthHelper {
 		return admin;
 	}
 
-	async createAuthClient({ clientId }: { clientId: string }) {
+	async createAuthClient({ clientId, title }: { clientId: string; title: string }) {
 		const oauthClient = new OauthClient();
 
 		oauthClient.clientId = clientId;
+		oauthClient.title = title;
 		oauthClient.salt = shortid.generate();
 		oauthClient.clientSecret = await my_util.getSha256(`${oauthClient.clientId}.${oauthClient.salt}`);
 		oauthClient.createdAt = oauthClient.updatedAt = new Date();

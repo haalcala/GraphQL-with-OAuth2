@@ -20,6 +20,10 @@ export class OauthClient extends BaseEntity {
 	salt: string;
 
 	@Field()
+	@Column("text")
+	title: string;
+
+	@Field()
 	@Column()
 	createdAt: Date;
 

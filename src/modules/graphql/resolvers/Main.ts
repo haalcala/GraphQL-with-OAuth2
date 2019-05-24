@@ -45,14 +45,14 @@ export class Main {
 
 	@Mutation(() => OauthClient)
 	@UseMiddleware(AdminOnly)
-	async createOAuthAccess(@Ctx() ctx: MyContext): Promise<OauthClient> {
+	async createOAuthClient(@Ctx() ctx: MyContext, @Arg("client_id") client_id: string, @Arg("title") title: string): Promise<OauthClient> {
 		const admin = await OAuthUser.findOne({ where: { userId: ctx.req.session.userId } });
 
 		if (!admin) {
 			throw new Error("Invalid session");
 		}
 
-		return await oauth_helper.createAuthClient({ clientId: admin.userId });
+		return await oauth_helper.createAuthClient({ clientId: client_id, title });
 	}
 
 	@Mutation(() => OAuthUser)
