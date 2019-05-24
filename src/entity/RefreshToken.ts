@@ -19,4 +19,7 @@ export class RefreshToken extends BaseEntity {
 
 	@Column()
 	updatedAt: Date;
+
+	@Column()
+	sessionId: string;
 }

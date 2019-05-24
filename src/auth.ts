@@ -150,7 +150,9 @@ export const configure = async (express_app, auth_provider: IAUTH_PROVIDER) => {
 			logDebug.enabled && logDebug("BearerStrategy!!!!!!, accessToken", accessToken);
 
 			try {
-				const user = await auth_provider.verifyAccessToken(accessToken);
+				const token = await auth_provider.verifyAccessToken(accessToken);
+
+				const user = await auth_provider.getUser(token.userId);
 
 				const ret = { userId: user.userId, scope: user.scope, harold_serialised_user: 1 };
 
@@ -179,9 +181,9 @@ export const configure = async (express_app, auth_provider: IAUTH_PROVIDER) => {
 			logDebug.enabled && logDebug("11111 oauth2orize.exchange.password(async (client, username, password, scope, done) => {", client, username, password, scope);
 
 			try {
-				const user = await auth_provider.verifyUser(username, password);
+				const { user, sessionId } = await auth_provider.verifyUser(username, password);
 
-				const { accessToken, refreshToken } = await auth_provider.getNewTokens(client, user);
+				const { accessToken, refreshToken } = await auth_provider.getNewTokens(client, user, sessionId);
 
 				done(null, accessToken.token, refreshToken.token, {
 					expires_in: TokenExpiry
@@ -210,7 +212,7 @@ export const configure = async (express_app, auth_provider: IAUTH_PROVIDER) => {
 
 				logDebug.enabled && logDebug("user:", user);
 
-				const { accessToken, refreshToken } = await auth_provider.getNewTokens(client, user);
+				const { accessToken, refreshToken } = await auth_provider.getNewTokens(client, user, codeToken.sessionId);
 
 				logDebug.enabled && logDebug("accessToken:", accessToken);
 				logDebug.enabled && logDebug("refreshToken:", refreshToken);
@@ -297,9 +299,9 @@ export const configure = async (express_app, auth_provider: IAUTH_PROVIDER) => {
 				return res.send(503, "Invalid 'client_id'");
 			}
 
-			const user = await auth_provider.verifyUser(username, password);
+			const { user, sessionId } = await auth_provider.verifyUser(username, password);
 
-			const accessToken = await auth_provider.createCode(client, user);
+			const accessToken = await auth_provider.createCode(client, user, sessionId);
 
 			const redirect_to = redirect_uri + (redirect_uri.indexOf("?") > 0 ? "&" : "?") + grant_type + "=" + accessToken.token;
 

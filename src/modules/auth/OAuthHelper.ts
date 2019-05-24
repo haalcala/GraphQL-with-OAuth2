@@ -8,18 +8,24 @@ import { RefreshToken } from "../../entity/RefreshToken";
 const { logDebug, logInfo } = my_util.getLoggers(module, 4);
 
 export interface IAUTH_PROVIDER {
-	createCode(client: OauthClient, user: OAuthUser): Promise<AccessToken>;
+	createCode(client: OauthClient, user: OAuthUser, sessionId?: string): Promise<AccessToken>;
 	getClient(client_id: string): Promise<OauthClient>;
 	getRefreshToken(token: string, remove_if_found: boolean): Promise<RefreshToken>;
-	getNewTokens(client: OauthClient, user: OAuthUser): PromiseLike<{ accessToken: AccessToken; refreshToken: RefreshToken }>;
-	verifyUser(username: string, password: string): Promise<OAuthUser>;
-	verifyAccessToken(accessToken: string, type?: "code"): Promise<OAuthUser>;
+	getNewTokens(client: OauthClient, user: OAuthUser, sessionId?: string): PromiseLike<{ accessToken: AccessToken; refreshToken: RefreshToken }>;
+	verifyUser(username: string, password: string): Promise<{ user: OAuthUser; sessionId?: string }>;
+	verifyAccessToken(accessToken: string, type?: "code"): Promise<AccessToken>;
 	getUser(userId: string): Promise<OAuthUser>;
 	verifyClient?(clientId: string, clientSecret: string): Promise<OauthClient>;
 }
 
+interface IOAUTHHELPER_OPTIONS {
+	auth_handler: IAUTH_PROVIDER;
+}
+
 class OAuthHelper {
-	constructor(options) {}
+	auth_handler: IAUTH_PROVIDER;
+
+	constructor() {}
 
 	async init() {
 		logInfo("Initialising OAuthHelper ...");
@@ -81,18 +87,10 @@ class OAuthHelper {
 	async authenticateUser({ username, password }): Promise<OAuthUser> {
 		logDebug.enabled && logDebug("username", username, "password:", password);
 
-		const oauthUser = await OAuthUser.findOne({ where: { userId: username } });
+		const { user } = await this.auth_handler.verifyUser(username, password);
 
-		logDebug.enabled && logDebug("oauthUser", oauthUser);
-
-		if (!oauthUser) {
-			throw new Error("Invalid user");
-		}
-
-		if ((await my_util.getSha256(`${oauthUser.userId}.${oauthUser.salt}.${password}`)) !== oauthUser.password) throw new Error("Invalid password");
-
-		return oauthUser;
+		return user;
 	}
 }
 
-export const oauth_helper = new OAuthHelper({});
+export const oauth_helper = new OAuthHelper();

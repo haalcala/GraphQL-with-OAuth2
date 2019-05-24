@@ -18,13 +18,24 @@ import _ = require("lodash");
 import { buildSchema } from "type-graphql";
 import cors = require("cors");
 import bodyParser from "body-parser";
-import { oauth_helper } from "./modules/auth/OAuthHelper";
+import { oauth_helper, IAUTH_PROVIDER } from "./modules/auth/OAuthHelper";
 import { OAuthUser } from "./entity/OAuthUser";
 import { my_util } from "./MyUtil";
+import { DefaultAuthHandler } from "./modules/auth/DefaultAuthHandler";
 
 const { logDebug, logWarn, logInfo } = my_util.getLoggers(module, 4);
 
-export const startServer = async auth_provider => {
+/**
+ *
+ * @param auth_provider Optional. Default is ./modules/auth/DefaultAuthHandler
+ */
+export const startServer = async (auth_provider?: IAUTH_PROVIDER) => {
+	if (!auth_provider) {
+		auth_provider = new DefaultAuthHandler();
+
+		oauth_helper.auth_handler = auth_provider;
+	}
+
 	logInfo("Starting server ...");
 	if (!process.env.INITIAL_ADMIN_USERNAME) {
 		throw new Error("Missing required configuration INITIAL_ADMIN_USERNAME");
@@ -167,5 +178,5 @@ export const startServer = async auth_provider => {
 
 	const port = (process.env.PORT && parseInt(process.env.PORT)) || 4003;
 
-	app.listen({ port }, () => logDebug.enabled && logDebug(`🚀 Server ready at http://localhost:${port}${server.graphqlPath}`));
+	app.listen({ port }, () => logInfo.enabled && logInfo(`🚀 Server ready at http://localhost:${port}${server.graphqlPath}`));
 };

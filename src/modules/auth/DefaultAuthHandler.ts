@@ -12,10 +12,11 @@ logDebug.enabled = true;
 export class DefaultAuthHandler implements IAUTH_PROVIDER {
 	TokenExpiry = process.env.OAUTH_TOKEN_EXPIRY || 3600;
 
-	async createCode(client: OauthClient, user: OAuthUser): Promise<AccessToken> {
+	async createCode(client: OauthClient, user: OAuthUser, sessionId?: string): Promise<AccessToken> {
 		const accessToken = await my_util.getNewToken<AccessToken>(AccessToken, client, user);
 
 		accessToken.grant_type = "code";
+		accessToken.sessionId = sessionId;
 
 		accessToken.save();
 
@@ -46,9 +47,11 @@ export class DefaultAuthHandler implements IAUTH_PROVIDER {
 		return refreshToken;
 	}
 
-	async getNewTokens(client: OauthClient, user: OAuthUser): Promise<{ accessToken: AccessToken; refreshToken: import("../../entity/RefreshToken").RefreshToken }> {
+	async getNewTokens(client: OauthClient, user: OAuthUser, sessionId?: string): Promise<{ accessToken: AccessToken; refreshToken: import("../../entity/RefreshToken").RefreshToken }> {
 		const accessToken = await my_util.getNewToken<AccessToken>(AccessToken, client, user);
 		const refreshToken = await my_util.getNewToken<RefreshToken>(RefreshToken, client, user);
+
+		accessToken.sessionId = refreshToken.sessionId = sessionId;
 
 		accessToken.save();
 		refreshToken.save();
@@ -56,7 +59,7 @@ export class DefaultAuthHandler implements IAUTH_PROVIDER {
 		return { accessToken, refreshToken };
 	}
 
-	async verifyUser(username: string, password: string): Promise<OAuthUser> {
+	async verifyUser(username: string, password: string): Promise<{ user: OAuthUser; sessionId?: string }> {
 		logDebug.enabled && logDebug("verifyUser:: username:", username, "password:", password);
 
 		const user = await OAuthUser.findOne({
@@ -71,10 +74,10 @@ export class DefaultAuthHandler implements IAUTH_PROVIDER {
 			throw err;
 		}
 
-		return user;
+		return { user };
 	}
 
-	async verifyAccessToken(accessToken: string, type?: string): Promise<OAuthUser> {
+	async verifyAccessToken(accessToken: string, type?: string): Promise<AccessToken> {
 		logDebug.enabled && logDebug("verifyAccessToken:: accessToken:", accessToken, "type:", type);
 
 		const token = await AccessToken.findOne({
@@ -96,15 +99,7 @@ export class DefaultAuthHandler implements IAUTH_PROVIDER {
 			throw new Error("Token Expired: " + accessToken);
 		}
 
-		const user = await OAuthUser.findOne({ where: { userId: token.userId } });
-
-		if (!user) {
-			logError.enabled && logError("Unknown user: " + token.userId);
-
-			throw new Error("Unknown user: " + token.userId);
-		}
-
-		return user;
+		return token;
 	}
 
 	async getUser(userId: string): Promise<OAuthUser> {
@@ -119,10 +114,11 @@ export class DefaultAuthHandler implements IAUTH_PROVIDER {
 
 	async verifyClient(clientId, clientSecret): Promise<OauthClient> {
 		const client = await OauthClient.findOne({
-			where: { clientId: clientId }
+			where: { clientId, clientSecret }
 		});
 
 		if (!client || client.clientSecret !== clientSecret) {
+			logError("verifyClient:: Invalid client");
 			throw new Error("Invalid client");
 		}
 

@@ -17,6 +17,10 @@ export class AccessToken extends BaseEntity {
 	@Column("text")
 	grant_type: string;
 
+	/** external sessionId */
+	@Column("text")
+	sessionId: string;
+
 	@Column()
 	createdAt: Date;
 
