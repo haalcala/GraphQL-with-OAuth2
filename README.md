@@ -27,15 +27,12 @@ export class MyCustomAuthHandler extends DefaultAuthHandler {
 	async verifyUser(username: string, password: string): Promise<{ user: OAuthUser, sessionId?: string }> {
 		logDebug.enabled && logDebug("verifyUser:: username:", username, "password:", password);
 
-		const vmc = new VMeetingClient({ meeting_url: process.env.VMEETING_URL });
+		const client = new MyExistingSystemClient({ ...some_config });
 
-		const resp = await vmc.login({ username, password });
+		const resp = await client.login({ username, password });
 
-		logDebug.enabled && logDebug("verifyUser:: resp", resp);
-
+		// NOTE: At this point, it is expected that the system has a minimal entry of the user with the 'userId' (or the username)
 		const user = await super.getUser(username);
-
-		logDebug.enabled && logDebug("verifyUser:: user", user);
 
 		return { user, sessionId: resp.session };
 	}
