@@ -69,6 +69,8 @@ export class Main {
 
 	@Mutation(() => OAuthUser)
 	async login(@Arg("username") username: string, @Arg("password") password: string, @Ctx() ctx: MyContext): Promise<OAuthUser> {
+		ctx.req.session.regenerate(() => {});
+
 		try {
 			const { user, sessionId } = await oauth_helper.authenticateUser({ username, password });
 
