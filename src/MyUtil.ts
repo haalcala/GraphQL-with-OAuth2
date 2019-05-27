@@ -46,6 +46,9 @@ class MyUtil {
 
 		if (level !== "ERROR") {
 			logger.log = console.log.bind(console);
+		}
+
+		if (typeof enabled !== "undefined") {
 			logger.enabled = enabled;
 		}
 

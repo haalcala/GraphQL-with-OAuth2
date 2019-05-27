@@ -41,6 +41,7 @@ export const startServer = async (auth_provider?: IAUTH_PROVIDER) => {
 	logDebug("oauth_helper.auth_handler:", oauth_helper.auth_handler);
 
 	logInfo("Starting server ...");
+
 	if (!process.env.INITIAL_ADMIN_USERNAME) {
 		throw new Error("Missing required configuration INITIAL_ADMIN_USERNAME");
 	}
@@ -98,9 +99,12 @@ export const startServer = async (auth_provider?: IAUTH_PROVIDER) => {
 	app.use(require("morgan")("dev"));
 
 	app.use((req, res, next) => {
-		logDebug.enabled && logDebug("1111 ------------------------------------------------------------------------------------------");
-		logDebug.enabled && logDebug("1111 ------------------------------------------------------------------------------------------");
-		logDebug.enabled && logDebug("1111 ------------------------------------------------------------------------------------------");
+		logDebug.enabled &&
+			logDebug("1111 ------------------------------------------------------------------------------------------");
+		logDebug.enabled &&
+			logDebug("1111 ------------------------------------------------------------------------------------------");
+		logDebug.enabled &&
+			logDebug("1111 ------------------------------------------------------------------------------------------");
 		// logDebug.enabled&& logDebug("req", req);
 		logDebug.enabled && logDebug("1111 req.headers", req.headers);
 		logDebug.enabled && logDebug("1111 req.body", req.body);
@@ -163,9 +167,12 @@ export const startServer = async (auth_provider?: IAUTH_PROVIDER) => {
 	});
 
 	app.use((req, res, next) => {
-		logDebug.enabled && logDebug("2222 ------------------------------------------------------------------------------------------");
-		logDebug.enabled && logDebug("2222 ------------------------------------------------------------------------------------------");
-		logDebug.enabled && logDebug("2222 ------------------------------------------------------------------------------------------");
+		logDebug.enabled &&
+			logDebug("2222 ------------------------------------------------------------------------------------------");
+		logDebug.enabled &&
+			logDebug("2222 ------------------------------------------------------------------------------------------");
+		logDebug.enabled &&
+			logDebug("2222 ------------------------------------------------------------------------------------------");
 		// logDebug.enabled&& logDebug("req", req);
 		logDebug.enabled && logDebug("2222 req.headers", req.headers);
 		logDebug.enabled && logDebug("2222 req.body", req.body);
@@ -182,5 +189,5 @@ export const startServer = async (auth_provider?: IAUTH_PROVIDER) => {
 
 	const port = (process.env.PORT && parseInt(process.env.PORT)) || 4003;
 
-	app.listen({ port }, () => logInfo.enabled && logInfo(`🚀 Server ready at http://localhost:${port}${server.graphqlPath}`));
+	app.listen({ port }, () => logInfo(`🚀 Server ready at http://localhost:${port}${server.graphqlPath}`));
 };
