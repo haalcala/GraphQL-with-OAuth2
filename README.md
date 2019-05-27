@@ -1,6 +1,6 @@
 # GraphQL With OAuth2
 
-This is a bare bone GraphQL with OAuth2.0 support or OAuth2.0 server with graphql capability, depending on how to want to utilise this base setup.
+This is a bare essential GraphQL with OAuth2.0 support or OAuth2.0 server with graphql capability, depending on how to want to utilise this base setup.
 
 ## So what does this exactly do?
 
@@ -13,6 +13,34 @@ You can just either use this project to serve as an ready-made OAuth2 server for
 ### Use case #2:
 
 Build a suite of graphql queries that compliment your business needs and enjoy a super admin access via Oauth2.
+
+### BONUS!
+
+By default authorization happens by making a call to the local user database and make the necesary verification. But with the latest update, you will be able to replace the authorization which effectively enables your existing or legacy system to have an OAuth2 layer/feature which changing your existing system.
+
+This can be achieved by extending the `DefaultAuthHandler` class and override the `verifyUser` method.
+
+Ex:
+
+    ```javascript
+    export class MyCustomAuthHandler extends DefaultAuthHandler {
+        async verifyUser(username: string, password: string): Promise<{ user: OAuthUser; sessionId?: string }> {
+            logDebug.enabled && logDebug("verifyUser:: username:", username, "password:", password);
+
+            const vmc = new VMeetingClient({ meeting_url: process.env.VMEETING_URL });
+
+            const resp = await vmc.login({ username, password });
+
+            logDebug.enabled && logDebug("verifyUser:: resp", resp);
+
+            const user = await super.getUser(username);
+
+            logDebug.enabled && logDebug("verifyUser:: user", user);
+
+            return { user, sessionId: resp.session };
+        }
+    }
+    ```
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
@@ -102,7 +130,7 @@ Sample output:
 
 ## GraphQL Notes
 
-Use `@UseMiddleware(AdminOnly)` annotation to restrict the query or mutation to the users `loginAdmin` or via OAuth
+Use `@UseMiddleware(AdminOnly)` annotation to restrict the query or mutation to the users `login` or via OAuth
 
 ## OAuth Notes
 
