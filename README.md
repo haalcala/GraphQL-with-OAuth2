@@ -110,13 +110,15 @@ Sample output:
 { "data": { "getUsers": [] } }
 ```
 
-### Create a client_id and secret key for your app!
+### Create a client_id and secret key for your app (or client)!
 
     curl --cookie cookies.jar --cookie-jar cookies.jar -H 'Content-Type: application/json' \
      -XPOST http://localhost:4003/graphql \
      -d "{\"operationName\":null,\"variables\":{}, \
      \"query\":\"mutation {  \
-        createOAuthAccess { clientId clientSecret  } \
+        createOAuthClient(client_id:\\\"my_client\\\" title:\\\"My Client Access\\\") {
+            clientId clientSecret
+        }
     }\"}"
 
 Sample output:
@@ -151,7 +153,7 @@ Sample output:
 
 ## GraphQL Notes
 
-Use `@UseMiddleware(AdminOnly)` annotation to restrict the query or mutation to the users `login` or via OAuth
+Use `@UseMiddleware(AdminOnly)` annotation (or decorator) to restrict the query or mutation to the users with `admin` role
 
 ## OAuth Notes
 
