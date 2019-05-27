@@ -74,20 +74,22 @@ startServer(auth_provider).catch(err => {
 
 ## Setup your OAuth2 access
 
-You can use curl or the UI with your browser at http://localhost:4003/graphql
+You can use `curl` or the UI with your browser at `http://localhost:4003/graphql`
 
 ### Login as admin
 
 Use the values for `INITIAL_ADMIN_USERNAME` and `INITIAL_ADMIN_PASSWORD`
 
-    curl --cookie cookies.jar --cookie-jar cookies.jar -H 'Content-Type: application/json' \
-     -XPOST http://localhost:4003/graphql \
-     -d "{\"operationName\":null, \
-     \"variables\":{}, \
-     \"query\":\"mutation { \
-         login(username: \\\"my_admin\\\", password: \\\"my_admin\\\") \
-         { id email  } \
-     }\"}"
+```bash
+curl --cookie cookies.jar --cookie-jar cookies.jar -H 'Content-Type: application/json' \
+    -XPOST http://localhost:4003/graphql \
+    -d "{\"operationName\":null, \
+    \"variables\":{}, \
+    \"query\":\"mutation { \
+        login(username: \\\"my_admin\\\", password: \\\"my_admin\\\") \
+        { id email  } \
+    }\"}"
+```
 
 Sample output:
 
@@ -97,29 +99,33 @@ Sample output:
 
 ### A quick test
 
-    curl --cookie cookies.jar --cookie-jar cookies.jar -H 'Content-Type: application/json' \
-     -XPOST http://localhost:4003/graphql \
-     -d "{\"operationName\":null,\"variables\":{}, \
-     \"query\":\"{  \
-        getUsers { userId  } \
-    }\"}"
+````bash
+curl --cookie cookies.jar --cookie-jar cookies.jar -H 'Content-Type: application/json' \
+    -XPOST http://localhost:4003/graphql \
+    -d "{\"operationName\":null,\"variables\":{}, \
+    \"query\":\"{  \
+    getUsers { userId  } \
+}\"}"
+```
 
 Sample output:
 
 ```json
 { "data": { "getUsers": [] } }
-```
+````
 
 ### Create a client_id and secret key for your app (or client)!
 
-    curl --cookie cookies.jar --cookie-jar cookies.jar -H 'Content-Type: application/json' \
-     -XPOST http://localhost:4003/graphql \
-     -d "{\"operationName\":null,\"variables\":{}, \
-     \"query\":\"mutation {  \
-        createOAuthClient(client_id:\\\"my_client\\\" title:\\\"My Client Access\\\") {
-            clientId clientSecret
-        }
-    }\"}"
+```bash
+curl --cookie cookies.jar --cookie-jar cookies.jar -H 'Content-Type: application/json' \
+    -XPOST http://localhost:4003/graphql \
+    -d "{\"operationName\":null,\"variables\":{}, \
+    \"query\":\"mutation {  \
+    createOAuthClient(client_id:\\\"my_client\\\" title:\\\"My Client Access\\\") {
+        clientId clientSecret
+    }
+}\"}"
+```
 
 Sample output:
 
@@ -129,12 +135,14 @@ Sample output:
 
 ### Create a (normal) user access (scope: [user]) (via OAuth)
 
-    curl --cookie cookies.jar --cookie-jar cookies.jar -H 'Content-Type: application/json' \
-     -XPOST http://localhost:4003/graphql \
-     -d "{\"operationName\":null,\"variables\":{}, \
-     \"query\":\"mutation {  \
-        createUserAccess(username:\\\"normal_user_name\\\", password:\\\"normal_user_password\\\") { userId } \
-    }\"}"
+```bash
+curl --cookie cookies.jar --cookie-jar cookies.jar -H 'Content-Type: application/json' \
+    -XPOST http://localhost:4003/graphql \
+    -d "{\"operationName\":null,\"variables\":{}, \
+    \"query\":\"mutation {  \
+    createUserAccess(username:\\\"normal_user_name\\\", password:\\\"normal_user_password\\\") { userId } \
+}\"}"
+```
 
 Sample output:
 
