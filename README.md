@@ -27,16 +27,20 @@ In `MyCustomAuthHandler.ts`:
 ```javascript
 export class MyCustomAuthHandler extends DefaultAuthHandler {
 	async verifyUser(username: string, password: string): Promise<{ user: OAuthUser, sessionId?: string }> {
-		logDebug.enabled && logDebug("verifyUser:: username:", username, "password:", password);
-
-		const client = new MyExistingSystemClient({ ...some_config });
-
-		const resp = await client.login({ username, password });
-
-		// NOTE: At this point, it is expected that the system has a minimal entry of the user with the 'userId' (or the username)
 		const user = await super.getUser(username);
 
-		return { user, sessionId: resp.session };
+		if (user.scope.indexOf("admin") >= 0) {
+			// if the user is an admin user, verify with default method
+			let { user } = await super.verifyUser(username, password);
+
+			return { user };
+		} else {
+			const client = new MyExistingSystemClient({ ...some_config });
+
+			const resp = await client.login({ username, password });
+
+			return { user, sessionId: resp.session };
+		}
 	}
 }
 ```
