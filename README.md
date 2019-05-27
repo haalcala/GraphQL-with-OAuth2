@@ -2,6 +2,8 @@
 
 This is a bare essential GraphQL with OAuth2.0 support or OAuth2.0 server with graphql capability, depending on how to want to utilise this base setup.
 
+It's also been restructured to allow your wrap your existing system. See #BONUS
+
 ## So what does this exactly do?
 
 You can login via /graphql (mutation: login) or via OAuth 2.0 and doing so will get the OAuthUser instance injected to the request object for further access to the rest of the mutation/query
