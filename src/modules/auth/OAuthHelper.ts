@@ -36,7 +36,7 @@ class OAuthHelper {
 		// create the first admin user
 		if ((await OAuthUser.count()) === 0) {
 			logInfo("Creating first OAuthUser");
-			await oauth_helper.createAdminUser(process.env.INITIAL_ADMIN_USERNAME, process.env.INITIAL_ADMIN_PASSWORD);
+			await this.createAdminUser(process.env.INITIAL_ADMIN_USERNAME, process.env.INITIAL_ADMIN_PASSWORD);
 		}
 	}
 
@@ -68,12 +68,10 @@ class OAuthHelper {
 		return oauthClient;
 	}
 
-	async authenticateUser({ username, password }): Promise<OAuthUser> {
+	async authenticateUser({ username, password }): Promise<{ user: OAuthUser; sessionId?: string }> {
 		logDebug.enabled && logDebug("username", username, "password:", password);
 
-		const { user } = await this.auth_handler.verifyUser(username, password);
-
-		return user;
+		return await this.auth_handler.verifyUser(username, password);
 	}
 }
 

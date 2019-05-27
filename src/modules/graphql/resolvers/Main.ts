@@ -70,11 +70,12 @@ export class Main {
 	@Mutation(() => OAuthUser)
 	async login(@Arg("username") username: string, @Arg("password") password: string, @Ctx() ctx: MyContext): Promise<OAuthUser> {
 		try {
-			const oauthUser = await oauth_helper.authenticateUser({ username, password });
+			const { user, sessionId } = await oauth_helper.authenticateUser({ username, password });
 
-			ctx.req.session.userId = oauthUser.userId;
+			ctx.req.session.userId = user.userId;
+			ctx.req.session.sessionId = sessionId;
 
-			return oauthUser;
+			return user;
 		} catch (e) {
 			logError(e);
 
