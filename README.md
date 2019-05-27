@@ -20,6 +20,8 @@ By default authorization happens by making a call to the local user database and
 
 This can be achieved by extending the `DefaultAuthHandler` class and override the `verifyUser` method. And specify the new authhandler in the `index.js`. And if it's not very obvious and not covered here, you would need to write your `MyExistingSystemClient` that can allow you to communicate with your existing existing system like LDAP, some REST endpoints and whatnot.
 
+You can override more methods in `DefaultAuthHandler`.
+
 Ex:
 
 In `MyCustomAuthHandler.ts`:
@@ -39,7 +41,10 @@ export class MyCustomAuthHandler extends DefaultAuthHandler {
 
 			const resp = await client.login({ username, password });
 
-			return { user, sessionId: resp.session };
+			// BIG NOTE!!!
+			// If you existing system expects a sessionId for suceeding calls, you should return it
+			// so that you can THIS system can keep it when the toke is refreshed
+			return { user, sessionId: resp.session }; // <<-- This sessionId will be tied to the OAuth token
 		}
 	}
 }
