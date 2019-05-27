@@ -172,7 +172,7 @@ Sample output:
 
 ## GraphQL Notes
 
-Use `@UseMiddleware(AdminOnly)` annotation (or decorator) to restrict the query or mutation to the users with `admin` role
+Use `@UseMiddleware(AdminOnly)` or `@UseMiddleware(UserOnly)` annotation (or decorator) to restrict the query or mutation to the users with `admin` or `user` role only, respectively.
 
 ## OAuth Notes
 
