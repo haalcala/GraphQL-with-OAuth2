@@ -171,10 +171,14 @@ Use `@UseMiddleware(AdminOnly)` annotation (or decorator) to restrict the query 
 
 Third-party consuming service should use the following endpoints
 
-Authorisation : `<host uri>/authorize.html`
+Authorisation : `<host uri>/authorize.html` (or your custom .html file)
 
-Request Token : `<host uri>/oauth/token`
+Request Token : `<host uri>/oauth/token` (you can change this according to your liking in the auth.ts)
 
-Refresh Token : `<host uri>/oauth/token`
+Refresh Token : `<host uri>/oauth/token` (you can change this according to your liking in the auth.ts)
 
-Test/Validation : `<host uri>/oauth/account`
+Test/Validation : `<host uri>/oauth/account` (you can change this according to your liking in the auth.ts)
+
+## Upgrade Note
+
+This project's structure is designed to overwrite your copy with simple copy & paste (merge mode if you're in Mac) to upgrade your project. But there's just ONE NOTE: Don't overwrite your `index.ts`.
