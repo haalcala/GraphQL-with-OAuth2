@@ -43,7 +43,8 @@ export const configure = async (express_app, auth_provider: IAUTH_PROVIDER) => {
 		// done(null, user.user_id)
 	});
 
-	passport.deserializeUser(async (user: { userId: string }, done) => {
+	passport.deserializeUser(async function(user: { userId: string }, done) {
+		logDebug.enabled && logDebug("deserializeUser:: arguments:", arguments);
 		// The user object in the arguments is what you have stored in the session
 
 		// If you stored the entire user object when you serialized it to session,
@@ -154,7 +155,7 @@ export const configure = async (express_app, auth_provider: IAUTH_PROVIDER) => {
 
 				const user = await auth_provider.getUser(token.userId);
 
-				const ret = { userId: user.userId, scope: user.scope, harold_serialised_user: 1 };
+				const ret = { userId: user.userId, scope: user.scope, harold_serialised_user: 1, sessionId: token.sessionId };
 
 				logDebug.enabled && logDebug("Returning user:", ret);
 
@@ -214,8 +215,7 @@ export const configure = async (express_app, auth_provider: IAUTH_PROVIDER) => {
 
 				const { accessToken, refreshToken } = await auth_provider.getNewTokens(client, user, codeToken.sessionId);
 
-				logDebug.enabled && logDebug("accessToken:", accessToken);
-				logDebug.enabled && logDebug("refreshToken:", refreshToken);
+				logDebug.enabled && logDebug("accessToken:", accessToken, "refreshToken:", refreshToken);
 
 				done(null, accessToken.token, refreshToken.token, {
 					expires_in: TokenExpiry
