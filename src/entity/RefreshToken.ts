@@ -14,6 +14,9 @@ export class RefreshToken extends BaseEntity {
 	@Column("text")
 	clientId: string;
 
+	@Column("text")
+	sessionId: string;
+
 	@Column()
 	createdAt: Date;
 

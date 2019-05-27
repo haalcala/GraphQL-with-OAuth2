@@ -85,6 +85,6 @@ export class Main {
 	@Query(() => [OAuthUser])
 	@UseMiddleware(AdminOnly)
 	async getUsers(): Promise<OAuthUser[]> {
-		return OAuthUser.find();
+		return await OAuthUser.find();
 	}
 }

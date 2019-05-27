@@ -18,6 +18,8 @@ export interface IAUTH_PROVIDER {
 	verifyAccessToken(accessToken: string, type?: "code"): Promise<AccessToken>;
 	getUser(userId: string): Promise<OAuthUser>;
 	verifyClient?(clientId: string, clientSecret: string): Promise<OauthClient>;
+	createUser(username: string, password: string, scope: string[]): Promise<OAuthUser>;
+	createAuthClient({ clientId, title }: { clientId: string; title: string });
 }
 
 interface IOAUTHHELPER_OPTIONS {
@@ -49,35 +51,13 @@ class OAuthHelper {
 	}
 
 	async createAdminUser(username: string, password: string) {
-		const admin = await this.createUser(username, password, ["admin"]);
-	}
-
-	async createUser(username: string, password: string, scope: string[] = ["user"]): Promise<OAuthUser> {
-		logDebug.enabled && logDebug.enabled && logDebug("createUser::");
-
-		const admin = new OAuthUser();
-
-		admin.userId = username;
-		admin.email = "";
-		admin.salt = shortid.generate();
-		admin.password = await my_util.getSha256(`${admin.userId}.${admin.salt}.${password}`);
-		admin.createdAt = admin.updatedAt = new Date();
-		admin.scope = scope;
-
-		await admin.save();
+		const admin = await this.auth_handler.createUser(username, password, ["admin"]);
 
 		return admin;
 	}
 
 	async createAuthClient({ clientId, title }: { clientId: string; title: string }) {
-		const oauthClient = new OauthClient();
-
-		oauthClient.clientId = clientId;
-		oauthClient.title = title;
-		oauthClient.salt = shortid.generate();
-		oauthClient.clientSecret = await my_util.getSha256(`${oauthClient.clientId}.${oauthClient.salt}`);
-		oauthClient.createdAt = oauthClient.updatedAt = new Date();
-		await oauthClient.save();
+		const oauthClient = await this.auth_handler.createAuthClient({ clientId, title });
 
 		return oauthClient;
 	}

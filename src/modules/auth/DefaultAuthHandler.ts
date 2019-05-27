@@ -4,6 +4,7 @@ import { OAuthUser } from "../../entity/OAuthUser";
 import { AccessToken } from "../../entity/AccessToken";
 import { my_util } from "../../MyUtil";
 import { RefreshToken } from "../../entity/RefreshToken";
+import shortid = require("shortid");
 
 const { logDebug, logError } = my_util.getLoggers(module, 4);
 
@@ -59,6 +60,23 @@ export class DefaultAuthHandler implements IAUTH_PROVIDER {
 		return { accessToken, refreshToken };
 	}
 
+	async createUser(username: string, password: string, scope: string[] = ["user"]): Promise<OAuthUser> {
+		logDebug.enabled && logDebug.enabled && logDebug("createUser::");
+
+		const admin = new OAuthUser();
+
+		admin.userId = username;
+		admin.email = "";
+		admin.salt = shortid.generate();
+		admin.password = await my_util.getSha256(`${admin.userId}.${admin.salt}.${password}`);
+		admin.createdAt = admin.updatedAt = new Date();
+		admin.scope = scope;
+
+		await admin.save();
+
+		return admin;
+	}
+
 	async verifyUser(username: string, password: string): Promise<{ user: OAuthUser; sessionId?: string }> {
 		logDebug.enabled && logDebug("verifyUser:: username:", username, "password:", password);
 
@@ -110,6 +128,19 @@ export class DefaultAuthHandler implements IAUTH_PROVIDER {
 		}
 
 		return user;
+	}
+
+	async createAuthClient({ clientId, title }: { clientId: string; title: string }) {
+		const oauthClient = new OauthClient();
+
+		oauthClient.clientId = clientId;
+		oauthClient.title = title;
+		oauthClient.salt = shortid.generate();
+		oauthClient.clientSecret = await my_util.getSha256(`${oauthClient.clientId}.${oauthClient.salt}`);
+		oauthClient.createdAt = oauthClient.updatedAt = new Date();
+		await oauthClient.save();
+
+		return oauthClient;
 	}
 
 	async verifyClient(clientId, clientSecret): Promise<OauthClient> {
