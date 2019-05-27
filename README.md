@@ -22,25 +22,25 @@ This can be achieved by extending the `DefaultAuthHandler` class and override th
 
 Ex:
 
-    ```javascript
-    export class MyCustomAuthHandler extends DefaultAuthHandler {
-        async verifyUser(username: string, password: string): Promise<{ user: OAuthUser; sessionId?: string }> {
-            logDebug.enabled && logDebug("verifyUser:: username:", username, "password:", password);
+```javascript
+export class MyCustomAuthHandler extends DefaultAuthHandler {
+	async verifyUser(username: string, password: string): Promise<{ user: OAuthUser, sessionId?: string }> {
+		logDebug.enabled && logDebug("verifyUser:: username:", username, "password:", password);
 
-            const vmc = new VMeetingClient({ meeting_url: process.env.VMEETING_URL });
+		const vmc = new VMeetingClient({ meeting_url: process.env.VMEETING_URL });
 
-            const resp = await vmc.login({ username, password });
+		const resp = await vmc.login({ username, password });
 
-            logDebug.enabled && logDebug("verifyUser:: resp", resp);
+		logDebug.enabled && logDebug("verifyUser:: resp", resp);
 
-            const user = await super.getUser(username);
+		const user = await super.getUser(username);
 
-            logDebug.enabled && logDebug("verifyUser:: user", user);
+		logDebug.enabled && logDebug("verifyUser:: user", user);
 
-            return { user, sessionId: resp.session };
-        }
-    }
-    ```
+		return { user, sessionId: resp.session };
+	}
+}
+```
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
