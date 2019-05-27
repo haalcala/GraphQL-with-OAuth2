@@ -14,13 +14,15 @@ You can just either use this project to serve as an ready-made OAuth2 server for
 
 Build a suite of graphql queries that compliment your business needs and enjoy a super admin access via Oauth2.
 
-### BONUS!
+### BONUS! Add an OAuth2 capability on your existing or legacy system!
 
 By default authorization happens by making a call to the local user database and make the necesary verification. But with the latest update, you will be able to replace the authorization which effectively enables your existing or legacy system to have an OAuth2 layer/feature which changing your existing system.
 
-This can be achieved by extending the `DefaultAuthHandler` class and override the `verifyUser` method.
+This can be achieved by extending the `DefaultAuthHandler` class and override the `verifyUser` method. And specify the new authhandler in the `index.js`.
 
 Ex:
+
+    MyCustomAuthHandler.ts
 
 ```javascript
 export class MyCustomAuthHandler extends DefaultAuthHandler {
@@ -37,6 +39,28 @@ export class MyCustomAuthHandler extends DefaultAuthHandler {
 		return { user, sessionId: resp.session };
 	}
 }
+```
+
+    index.ts
+
+FROM:
+
+```javascript
+const auth_provider = new DefaultAuthHandler(); // replace this with your custom auth provider
+
+startServer(auth_provider).catch(err => {
+	logDebug.enabled && logDebug("index.ts:: err:", err);
+});
+```
+
+TO:
+
+```javascript
+const auth_provider = new MyCustomAuthHandler(); // replace this with your custom auth provider
+
+startServer(auth_provider).catch(err => {
+	logDebug.enabled && logDebug("index.ts:: err:", err);
+});
 ```
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
