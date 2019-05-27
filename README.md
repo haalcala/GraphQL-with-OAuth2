@@ -22,7 +22,7 @@ This can be achieved by extending the `DefaultAuthHandler` class and override th
 
 Ex:
 
-    MyCustomAuthHandler.ts
+In `MyCustomAuthHandler.ts`:
 
 ```javascript
 export class MyCustomAuthHandler extends DefaultAuthHandler {
@@ -41,7 +41,7 @@ export class MyCustomAuthHandler extends DefaultAuthHandler {
 }
 ```
 
-    index.ts
+in `index.ts`:
 
 FROM:
 
