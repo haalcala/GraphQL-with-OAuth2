@@ -16,7 +16,7 @@ Build a suite of graphql queries that compliment your business needs and enjoy a
 
 ### BONUS! Add an OAuth2 capability on your existing or legacy system!
 
-By default authorization happens by making a call to the local user database and make the necesary verification. But with the latest update, you will be able to replace the authorization which effectively enables your existing or legacy system to have an OAuth2 layer/feature which changing your existing system.
+By default authorization happens by making a call to the local user database and make the necesary verification. But with the latest update, you will be able to replace the authorization which effectively enables your existing or legacy system to have an OAuth2 layer/feature without changing your existing system.
 
 This can be achieved by extending the `DefaultAuthHandler` class and override the `verifyUser` method. And specify the new authhandler in the `index.js`.
 
