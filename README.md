@@ -2,7 +2,7 @@
 
 This is a bare essential GraphQL with OAuth2.0 support or OAuth2.0 server with graphql capability, depending on how to want to utilise this base setup.
 
-It's also been restructured to allow your wrap your existing system. See (#bonus-add-an-oauth2-capability-on-your-existing-or-legacy-system-in-two-easy-steps)
+It's also been restructured to allow your wrap your existing system. See [Bonus](#bonus-add-an-oauth2-capability-on-your-existing-or-legacy-system-in-two-easy-steps)
 
 ## So what does this exactly do?
 
