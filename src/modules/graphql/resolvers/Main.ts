@@ -58,7 +58,7 @@ export class Main {
 	@Mutation(() => OAuthUser)
 	@UseMiddleware(AdminOnly)
 	async createUserAccess(@Ctx() ctx: MyContext, @Arg("username") username: string, @Arg("password") password: string): Promise<OAuthUser> {
-		const admin = await oauth_helper.createUser(username, password, ["user"]);
+		const admin = await oauth_helper.createUser(username, password);
 
 		if (!admin) {
 			throw new Error("Invalid session");

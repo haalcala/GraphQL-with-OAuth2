@@ -56,6 +56,12 @@ class OAuthHelper {
 		return admin;
 	}
 
+	async createUser(username: string, password: string) {
+		const admin = await this.auth_handler.createUser(username, password, ["user"]);
+
+		return admin;
+	}
+
 	async createAuthClient({ clientId, title }: { clientId: string; title: string }) {
 		const oauthClient = await this.auth_handler.createAuthClient({ clientId, title });
 
